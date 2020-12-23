@@ -1,29 +1,24 @@
-# Conceitos básicos de NoSQL
+# NoSQL basics
 
-Os bancos NoSQL são uma classe de tecnologia de persistência que provê um novo mecanismo de armazenamento que vai de encontro com a normalização e os bancos de dados relacionais. Como qualquer outro banco, ele possui os mesmos objetivos: inserir, atualizar, recuperar e deletar informações, porém, com novos conceitos de modelagem e estrutura de armazenamento.  
+NoSQL banks are a class of persistence technology that provides a new storage mechanism that meets standardization and relational databases. Like any other bank, it has the same objectives, that is, to insert, update, retrieve and delete information, however, with new concepts of modeling and storage structure.
 
-O termo NoSQL, inicialmente, era relacionado com "não SQL" e posteriormente foi estendido para _Not Only SQL_, ou seja, "não apenas SQL", abrindo o conceito de consciência poliglota (o trabalho de lidar com diversos tipos de bancos para alcançar os objetivos na aplicação). 
-
-Esses bancos têm como principais características velocidade e a alta taxa de escalabilidade, como facilidade de aumentar a quantidade de servidores de banco de dados. Isso impede o gargalo de operações, evita um ponto de falha, além de distribuí-los geograficamente, fazendo com que os dados estejam próximos dos usuários que farão a requisição. 
-
-Bancos NoSQL estão sendo adotados com maior frequência em diversos tipos de aplicações, inclusive para as instituições financeiras. Como consequência, está crescendo também o número de fornecedores para esse tipo de banco de dados.
+The term NoSQL was initially related to "not SQL" and was later extended to _Not Only SQL_, that is, "not just SQL", opening the concept of polyglot awareness (the work of dealing with different types of banks to reach the objectives in the application). The main characteristics of these banks are speed and a high rate of scalability, as well as the facility to increase the number of database servers. This prevents the bottleneck of operations, avoids a point of failure, and distributes them geographically, making the data close to the users who will make the request. NoSQL banks are being adopted more frequently in several types of applications, including applications for financial institutions. As a consequence, the number of suppliers for this type of database is also growing.
 
 
-Atualmente, os bancos de dados NoSQL são classificados em quatro grupos (chave valor, família de coluna, documento e grafos) definidos pelo seu modelo de armazenamento:
+Currently, NoSQL databases are classified into four groups (key value, column family, document and graphs) defined by their storage model:
 
-> Para conhecer um novo conceito, é muito comum realizar uma comparação com o conhecimento já existente. Dessa maneira, considerando que os bancos de dados relacionais são bem famosos, faremos uma comparação entre eles e NoSQL ao decorrer deste capítulo.
+> In order to know a new concept, it is very common to make a comparison with the existing knowledge. Thus, considering that relational databases are very famous, we will make a comparison between relational databases and NoSQL throughout this chapter.
 
 
-## Chave-valor
+## Key-value
 
-<!--Nesta imagem, é Beaty mesmo, ou serua Beauty?-->
-![Estrutura de chave-valor {w=70%}](imagens/key-value.png)
 
-Os bancos do tipo chave-valor possuem uma estrutura similar ao `java.util.Map`, ou seja, a informação será recuperada apenas pela chave. 
 
-Esse tipo de banco de dados pode ser utilizado, por exemplo, para gerenciar a sessão do usuário. Outro caso interessante é o DNS, cuja chave é o endereço, por exemplo `www.google.com`, e o valor é o IP desse servidor.
+![Key Value structure](imagens/key-value.png)
 
-Atualmente existem diversas implementações de banco de dados do tipo chave-valor, dentre os quais os mais famosos são:
+Key-value banks have a structure similar to `java.util.Map`, that is, the information will be retrieved only by the key. This type of database can be used, for example, to manage the user's session. Another interesting case is the DNS, whose key is the address, for example, `www.google.com` and the value is the IP of that server.
+
+Currently, there are several key-value database implementations, among which the most famous are:
 
 * AmazonDynamo
 * AmazonS3
@@ -31,30 +26,27 @@ Atualmente existem diversas implementações de banco de dados do tipo chave-val
 * Scalaris
 * Voldemort
 
-Comparando o banco de dados relacional com o do tipo chave-valor, é possível perceber alguns pontos. Um deles é que a estrutura do chave-valor é bastante simples. 
+Comparing the relational database with the key-value type, it is possible to notice some points. The first is that the key-value structure is quite simple. It is not possible to perform operations such as `join` between the` buckets` and the value consists of a large block of information instead of being subdivided into columns as in the relational database.
 
-Não é possível realizar operações como `join` entre os `buckets` e o valor é composto por grande bloco de informação em vez de ser subdivido em colunas como na base de dados relacional.
+| Relational structure | Key-value structure |
+| -------------------- | ------------------- |
+| Table                | Bucket              |
+| Row                  | Key / value pair    |
+| Column               | ----                |
+| Relationship         | ----                |
 
-| Estrutura relacional | Estrutura chave-valor|
-| --- | ---|
-| Table | Bucket|
-| Row | Key/value pair|
-| Column | ----|
-| Relationship | ----|
-
-
-```
+### Column family
 
 
-```
 
-### Família de colunas
+![Column family structure](imagens/column.png "Column family structure")
 
-![Estrutura família de colunas {w=70%}](imagens/column.png)
 
-Esse modelo se tornou popular através do _paper BigTable_ do Google, com o objetivo de montar um sistema de armazenamento de dados distribuído, e projetado para ter um alto grau de escalabilidade e de volume de dados. Assim como o chave-valor, para realizar uma busca ou recuperar alguma informação dentro do banco de dados é necessário utilizar o campo que funciona como um identificador único que seria semelhante à chave na estrutura chave-valor. Porém, as semelhanças terminam por aí. As informações são agrupadas em colunas: uma unidade da informação que é composta pelo nome e a informação em si.
 
-Esses tipos de bancos de dados são importantes quando se lidam com um alto grau de volume de dados, de modo que seja necessário distribuir as informações entre diversos servidores. Mas vale salientar que a sua operação de leitura é bastante limitada, semelhante ao chave-valor, pois a busca da informação é definida a partir de um campo único ou uma chave. Existem diversos bancos de dados que utilizam essas estruturas, por exemplo:
+
+This model became popular through Google's _paper BigTable_, with the objective of building a distributed data storage system, designed to have a high degree of scalability and data volume. Like the key-value, to perform a search or retrieve some information within the database, it is necessary to use the field that functions as a unique identifier that would be similar to the key in the key-value structure. However, the similarities end there. The information is grouped in columns: a unit of information that is made up of the name and the information itself.
+
+These types of databases are important when dealing with a high degree of data volume, so it is necessary to distribute the information among several servers. But it is worth noting that its reading operation is quite limited, similar to the key-value, since the search for information is defined from a single field or a key. There are several databases that use these structures, for example:
 
 * Hbase
 * Cassandra
@@ -63,28 +55,30 @@ Esses tipos de bancos de dados são importantes quando se lidam com um alto grau
 * SimpleDb
 * DynamoDB
 
-Dentre os tipos de bancos de dados do tipo família de coluna, o Apache Cassandra é o mais famoso. Assim, caso uma aplicação necessite lidar com um grande volume de dados e com fácil escalabilidade, o Cassandra é certamente uma boa opção.
+Among the types of databases of the column family type, Apache Cassandra is the most famous. Thus, if an application needs to deal with a large volume of data and with easy scalability, Cassandra is certainly a good option.
 
 
-Ao contrapor o banco do tipo família de coluna com os bancos relacionais, é possível perceber que as operações, em geral, são muito mais rápidas. É mais simples trabalhar com grandes volumes de informações e servidores distribuídos em todo o mundo, porém, isso tem um custo: a leitura desse tipo de banco de dados é bem limitada. 
+By comparing the column type family bank with the relational banks, it is possible to notice that the operations, in general, are much faster. It is simpler to work with large volumes of information and servers distributed around the world, however, this comes at a cost: the reading of this type of database is very limited. For example, it is not possible to make joins between family of columns as in the relational bank. The column family allows you to have an unlimited number of columns, which in turn is composed of name and information, exactly as shown in the following table:
 
-Por exemplo, não é possível realizar uniões entre família de colunas como no banco relacional. A família de coluna permite que se tenha um número ilimitado de coluna, que por sua vez é composta por nome e a informação, exatamente como mostra a tabela a seguir:
-
-| Estrutura relacional | Estrutura de família de colunas|
-| --- | ---|
-| Table | Column Family|
-| Row | Column|
-| Column | nome e valor da Column|
-| Relacionamento | Não tem suporte|
+| Relational structure | Column family structure |
+| -------------------- | ----------------------- |
+| Table                | Column Family           |
+| Row                  | Column                  |
+| Column               | Column name and value   |
+| Relationship         | Not supported           |
 
 
-## Orientado a documentos
 
-![Estrutura de documentos {w=40%}](imagens/document.png)
 
-Os bancos de dados orientados a documentos têm sua estrutura muito semelhante a um arquivo JSON ou XML. Eles são compostos por um grande número de campos, que são criados em tempo de execução, gerando uma grande flexibilidade, tanto para a leitura como para escrita da informação. 
+## Document oriented
 
-Eles permitem que seja realizada a leitura da informação por campos que não sejam a chave. Algumas implementações, por exemplo, têm uma altíssima integração com motores de busca. Assim, esse tipo de banco de dados é crucial quando se realiza análise de dados ou logs de um sistema. Existem algumas implementações dos bancos de dados do tipo documento, sendo que o mais famoso é o MongoDB.
+
+
+![Document structure {w = 30%}](imagens/document.png "Document collection structure")
+
+Document-oriented databases have a structure very similar to a JSON or XML file. They are composed of a large number of fields, which are created at run time, generating great flexibility, both for reading and writing information.
+
+They allow information to be read by fields that are not the key. Some implementations, for example, have a very high integration with search engines. Thus, this type of database is crucial when performing data analysis or system logs. There are some implementations of document type databases, the most famous of which is MongoDB.
 
 * AmazonSimpleDb
 * ApacheCouchdb
@@ -92,21 +86,24 @@ Eles permitem que seja realizada a leitura da informação por campos que não s
 * Riak
 
 
-Ao comparar com uma base relacional, apesar de ser possível realizar uma busca por campos que não sejam o identificador único, os bancos do tipo documentos não têm suporte a relacionamento. Outro ponto é que os bancos do tipo documento, no geral, são _schemeless_.
+When comparing with a relational base, although it is possible to perform a search for fields other than the unique identifier, document-type banks do not have relationship support. Another point is that document banks, in general, are _schemeless_.
 
-| Estrutura relacional | Estrutura de documentos|
-| --- | ---|
-| Table | Collection|
-| Row | Document|
-| Column | Key/value pair|
-| Relationship | --|
+| Relational structure | Document structure |
+| -------------------- | ------------------ |
+| Table                | Collection         |
+| Row                  | Document           |
+| Column               | Key / value pair   |
+| Relationship         | -                  |
 
 
-## Grafos
 
-![Estrutura de grafos {w=80%}](imagens/graph.png)
+## Graphs
 
-Os bancos do tipo grafos são uma estrutura de dados que conecta um conjunto de vértices através de um conjunto de arestas. Os bancos modernos dessa categoria suportam estruturas de grafo multirrelacionais, onde existem diferentes tipos de vértices (representando pessoas, lugares, itens) e diferentes tipos de arestas. Os sistemas de recomendação que acontecem em redes sociais são o maior case para o banco do tipo grafo. Dos tipos de banco de dados mais famosos no mundo NoSQL, o grafo possui uma estrutura distinta com o relacional. 
+
+
+![Graphics Structure](imagens/graph.png "Graphics Structure")
+
+Graph-type banks are a data structure that connects a set of vertices through a set of edges. Modern banks in this category support multi-relational graph structures, where there are different types of vertices (representing people, places, items) and different types of edges. The recommendation systems that take place on social networks are the biggest case for the graph type bank. Of the most famous database types in the NoSQL world, the graph has a distinct structure with the relational one.
 
 
 * Neo4j
@@ -115,26 +112,26 @@ Os bancos do tipo grafos são uma estrutura de dados que conecta um conjunto de 
 * HyperGraphDB
 
 
-## Teorema do CAP
+## CAP theorem
 
-![Teorema do CAP {w=60%}](imagens/cap.png)
+![CAP theorem](imagens/cap.png "CAP theorem")
 
-Um dos grandes desafios dos bancos de dados NoSQL é que eles lidam com a persistência distribuída, ou seja, as informações ficam localizadas em mais de um servidor. Foram criados diversos estudos para ajudar nesse desafio de persistência distribuída, sendo o mais famoso uma teoria criada em 1999, o Teorema do CAP. 
+One of the great challenges of NoSQL databases is that they deal with distributed persistence, that is, the information is located on more than one server. Several studies were created to help in this challenge of distributed persistence. The most famous was a theory created in 1999, the CAP Theorem.
 
-Este teorema afirma que é impossível que o armazenamento de dados distribuído forneça simultaneamente mais de duas das três garantias seguintes:
+This theorem states that it is impossible for distributed data storage to provide more than two of the following three guarantees simultaneously:
 
-* *Consistência/Consistency:*: uma garantia de que cada nó em um cluster distribuído retorna a mesma gravação mais recente e bem-sucedida. Consistência refere-se a cada cliente com a mesma visão dos dados.
-* *Disponibilidade/Availability*: cada pedido recebe uma resposta (sem erro) - sem garantia de que contém a escrita mais recente.
-* *Tolerância à partição/Partition tolerance*: o sistema continua a funcionar e a manter suas garantias de consistência apesar das partições de rede. Os sistemas distribuídos que garantem a tolerância continuam operando mesmo que aconteça alguma falha em um dos nós uma vez que existe, pelo menos, um nó para operar o mesmo trabalho e garantir o funcionamento do sistema.
+* Consistency *: an assurance that each node in a distributed cluster returns the same most recent and successful write. Consistency refers to each customer with the same view of the data.
+* Availability *: each request receives a response (no error) - no guarantee that it contains the most recent writing
+* Partition tolerance *: the system continues to function and maintain its consistency guarantees despite network partitions. Distributed systems that guarantee tolerance continue to operate even if there is a failure in one of the nodes since there is at least one node to operate the same job and guarantee the perfect functioning of the system.
 
-De uma maneira geral, esse teorema explica que não existe mundo perfeito. Quando se escolhe uma característica, perde-se em outra como consequência. Em um mundo ideal, um banco de dados distribuído conseguiria suportar as três características, porém, na realidade, é importante para o desenvolvedor saber o que ele perderá quando escolher entre um ou outro.
+In general, this theorem explains that there is no perfect world. When you choose one characteristic, you lose yourself in another as a consequence. In an ideal world, a distributed database would be able to support all three characteristics, but in reality, it is important for the developer to know what he will lose when choosing between one or the other.
 
-Por exemplo, o Apache Cassandra é AP, ou seja, sua arquitetura focará em tolerância a falha e disponibilidade. Existirão perdas na consistência, assim, em alguns momentos um nó retornará informação desatualizada.
- 
-Porém, o Cassandra tem o recurso de nível de consistência, de modo que é possível fazer com que algumas requisições ao banco de dados sejam enviadas a todos os nós ao mesmo tempo, garantindo consistência. Vale ressaltar que fazendo isso ele perderá o `A`, de _availability_ do teorema do CAP.
+For example, Apache Cassandra is AP, that is, its architecture will focus on fault tolerance and availability. There will be losses in consistency, so in a few moments a node will return outdated information.
 
-### Conclusão
+However, Cassandra has the consistency level feature, so that it is possible to make certain requests to the database be sent to all nodes at the same time, ensuring consistency. It is worth mentioning that in doing so he will lose the `A`, of _aviability_ of the CAP theorem, of availability.
 
-Este capítulo teve como objetivo dar o pontapé inicial para os bancos de dados não relacionais. Foram discutidos conceitos, os tipos de bancos que existem até o momento e suas estruturas. Com esse novo paradigma de persistência, vêm novas possibilidades e novos desafios para as aplicações. 
+### Conclusion
 
-Esse tipo de banco de dados veio para enfrentar a nova era das aplicações, na qual velocidade ou o menor tempo de resposta possível são um grande diferencial. Com este capítulo introdutório, você está apto para seguir desbravando os bancos não relacionais, com o Cassandra.
+This chapter aimed to kick-start non-relational databases. Concepts were discussed, the types of banks that exist so far and their structures. With this new persistence paradigm, new possibilities and challenges for applications come.
+
+This type of database has come to face the new era of applications, in which speed or the shortest possible response time is a great advantage. With this introductory chapter, you are able to continue exploring non-relational banks, with Cassandra.
