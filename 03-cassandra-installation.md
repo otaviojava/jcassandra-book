@@ -1,24 +1,26 @@
-# Instalação do Cassandra
+# Cassandra installation
 
-Nos capítulos anteriores, foram abordados os conceitos dos bancos de dados não relacionais, suas comparações com o relacional, e dissecamos o funcionamento interno do Cassandra. 
+In the previous chapters, we discussed the concepts of non-relational databases, their comparisons with the relational ones, and we dissected the internal workings of Cassandra.
 
-Neste capítulo, teremos uma visão mais prática: mostraremos como funciona o processo de instalação, configuração, como criar instâncias do Cassandra dentro um contêiner com Docker, além de como criar um cluster de uma maneira simples com `docker-compose`.
+In this chapter, we will have a more practical view: we will show how the installation process, configuration, how to create Cassandra instances inside a container with Docker, as well as how to create a cluster in a simple way with docker-compose.
 
-## Realizando download do Cassandra
+## Downloading Cassandra
 
-Antes de iniciar a instalação é importante falar dos pré-requisitos do Cassandra. Como ele é um banco de dados feito em Java, para a instalação é necessário que você tenha instalada alguma implementação do Java 8 (OpenJDK, Azul, Oracle HotSpot etc.).
+Before starting the installation it is important to talk about Cassandra's prerequisites. As it is a database made in Java, for installation it is necessary that you have installed some Java 8 implementation (OpenJDK, Azul, Oracle HotSpot etc.).
 
-Nesse primeiro momento de instalação não será utilizado nenhum outro cliente além do `cqlsh`, o comunicador nativo do Cassandra, assim, é necessário que o computador também tenha a última versão do Python 2.7. O `cqlsh` é uma ponte de comunicação com o banco de dados que permite a interação com uma instância via linhas Shell através do CQL, o Cassandra Query Language.
-
-
-* Realize o download do Cassandra no site do projeto: http://cassandra.apache.org/download/
-* Descompacte o arquivo, que terá nome semelhante a `tar -xvf apache-cassandra-3.6-bin.tar.gz`.
-* Com os arquivos descompactados, o próximo passo é entrar na pasta `bin` e iniciar o Apache Cassandra. Para isso, execute o comando `cassandra -f`.
+In this first installation moment, no other client will be used besides `cqlsh`, Cassandra's native communicator, so it is necessary that the computer also has the latest version of Python 2.7. `Cqlsh` is a communication bridge with the database that allows interaction with an instance via Shell lines through CQL, the Cassandra Query Language.
 
 
-Uma vez com a instância de banco de dados de pé, o próximo passo será testar a comunicação com ela. Para isso, será utilizado o `client`, citado anteriormente. Assim, para o executar, é necessário rodar o comando `./cqlsh` dentro da pasta `bin`.
+* Download Cassandra from the project website: http://cassandra.apache.org/download/
 
-```bash
+* Unzip the file, which will have a name similar to `tar -xvf apache-cassandra-3.6-bin.tar.gz`
+
+* With the files unzipped, the next step is to enter the `bin` folder and start Apache Cassandra. To do this, run the command `cassandra -f`.
+
+
+Once the database instance is up, the next step will be to test communication with it. For this, the client, mentioned above, will be used. Thus, to execute it, it is necessary to run the `. / Cqlsh` command inside the` bin` folder.
+
+````bash
 Connected to Test Cluster at 127.0.0.1:9042.
 [cqlsh 5.0.1 | Cassandra 3.11.3 | CQL spec 3.4.4 | Native protocol v4]
 Use HELP for help.
@@ -27,46 +29,49 @@ cqlsh> SHOW VERSION
 cqlsh>
 ```
 
-## Configurações dentro do arquivo yaml
 
-Para executar um único nó, os valores padrões são suficientes, porém, para rodar em um cluster com mais de um nó, algumas mudanças são importantes. As principais configurações se encontram dentro da pasta `conf`, no arquivo `cassandra.yaml`. Destacam-se:
+## Settings within the yaml file
 
-* `cluster_name`: o nome do cluster.
-* `seeds`: os IPs, Internet Protocol (o endereço do computador), dos nós sementes separados por vírgulas.
-* `listen_address`: os IPs dos nós sementes, ou as instâncias de Cassandra que serão utilizados como referência em uma startup, separados por vírgulas. Essas instâncias terão como responsabilidade “treinar” os novos servidores recém-chegados no cluster. Assim, serão esses nós que serão encarregados de enviar todas as informações necessárias para que o nó calouro consiga trabalhar dentro do cluster.
-* `listen_interface`: informa para o Cassandra qual interface utilizar, consequentemente, qual endereço para o uso. É necessário modificar o `listen_address` ou essa configuração, porém, não os dois.
+To run a single node, the default values are sufficient, however, to run in a cluster with more than one node, some changes are important. The main settings are found in the `conf` folder, in the` cassandra.yaml` file. The following stand out:
 
 
-## Simplificando a instalação com contêineres
+* `cluster_name`: the name of the cluster.
+* `seeds`: The Ips, the Internet Protocol (the computer address) of the seed nodes separated by commas.
+* `listen_address`: The Ips of the seed nodes, or the instances of Cassandra that will be used as a reference in a startup, separated by commas. These instances will be responsible for "training" new servers newly arrived in the cluster. Thus, it will be these nodes that will be in charge of sending all the necessary information so that the freshman node can work within the cluster.
+* `listen_interface`: Tells Cassandra which interface to use, consequently, which address to use. It is necessary to modify the `listen_address` or this configuration, however, not both.
 
-Uma maneira de se instalar o Cassandra é através de contêiner com o Docker. Em uma visão geral, um contêiner é um ambiente isolado. A tecnologia Docker utiliza o kernel linux e recursos, por exemplo Cgroups e namespaces, para segregar processos, de modo que eles possam ser executados de maneira independente. 
 
-O objetivo dos contêineres é criar tal independência: a habilidade de executar diversos processos e aplicativos de maneira isolada, utilizar melhor a infraestrutura, manter a segurança entre os contêineres executados, além da facilidade de criação e manutenção.
 
-> Se você tiver interesse em se aprofundar em Docker, acesse: https://www.casadocodigo.com.br/products/livro-docker
+## Simplifying installation with containers
 
-Uma vez instalado o Docker (https://docs.docker.com/install/), basta executar o seguinte comando no console:
+
+One way to install Cassandra is through a container with Docker. In a general view, a container is an isolated environment and Docker technology uses the linux kernel and resources, for example Cgroups and namespaces, to segregate processes, so that they can be executed independently.
+
+The purpose of containers is to create such independence: the ability to run multiple processes and applications in isolation, make better use of the infrastructure, maintain security between the containers executed, in addition to the ease of creation and maintenance.
+
+> If you are interested in going deeper into Docker, visit: https://www.casadocodigo.com.br/products/livro-docker
+
+Once Docker is installed (https://docs.docker.com/install/), just run the following command on the console:
 
 ```bash
-docker run -d --name casandra-instance -p 9042:9042 cassandra
+docker run -d --name casandra-instance -p 9042: 9042 cassandra
 ```
 
-Esse comando baixa e executa https://store.docker.com/images/cassandra, a imagem oficial do Cassandra, diretamente do _docker hub_.
+This command downloads and runs https://store.docker.com/images/cassandra, Cassandra's official image, directly from the _docker hub_.
 
-Para executar o `cqlsh` dentro do Docker:
+To run `cqlsh` inside Docker:
 
-* Liste os contêineres sendo executados na máquina com o comando `docker ps`.
+* List the containers running on the machine with the `docker ps` command
 
-```bash
+````bash
 $ docker ps
-CONTAINER ID        IMAGE
-7373093f921a        cassandra
+CONTAINER ID IMAGE
+7373093f921a cassandra
 ```
 
-* Cada contêiner criado possui um identificador único ou ID. O objetivo do comando anterior foi listar os contêineres existentes e seus respectivos IDs. Uma vez com o ID do contêiner do Cassandra encontrado, basta executar o comando para `docker exec -it CONTAINER_ID cqlsh`.
+* Each container created has a unique identifier or ID. The purpose of the previous command was to list the existing containers and their respective Ids. Once you have found the Cassandra container ID, just run the command for `docker exec -it CONTAINER_ID cqlsh`.
 
-
-```bash
+````bash
 $ docker exec -it 7373093f921a cqlsh
 Connected to Test Cluster at 127.0.0.1:9042.
 [cqlsh 5.0.1 | Cassandra 3.11.3 | CQL spec 3.4.4 | Native protocol v4] Use HELP for help.
@@ -74,23 +79,22 @@ cqlsh> SHOW VERSION
 [cqlsh 5.0.1 | Cassandra 3.11.3 | CQL spec 3.4.4 | Native protocol v4]
 ```
 
-Por padrão do Docker, todos os arquivos são criados dentro do contêiner. Assim, para extrair o volume de dados para fora do contêiner, é necessário mapear o caminho `/var/lib/cassandra`, por exemplo:
+By default in Docker, all files are created inside the container. Thus, to extract the volume of data out of the container, it is necessary to map the `/ var / lib / cassandra` path, for example:
 
-```bash
-docker run --name some-cassandra -p 9042:9042 -v /my/own/datadir:/var/lib/cassandra -d cassandra
+````bash
+docker run --name some-cassandra -p 9042: 9042 -v / my / own / datadir: / var / lib / cassandra -d cassandra
 ```
 
-## Criando o primeiro cluster com Docker Compose
+## Creating the first cluster with Docker Compose
 
-Seguindo a linha do Docker e contêiner, para que se execute um cluster é necessário ter muitos contêineres. Umas das ferramentas que permite a execução de múltiplos contêineres é o Docker Compose.
+Following the line of the Docker and container, in order to execute a cluster it is necessary to have many containers. One of the tools that allows the execution of multiple containers is Docker Compose.
+Compose is a tool to run multiple containers, which is done in a very simple way with a YAML configuration file. Thus, with a single command it is possible to run many containers. The following file shows a simple configuration using three nodes in the cluster.
 
-Isso é feito de uma maneira bastante simples com um arquivo YAML de configuração. Dessa forma, com um único comando é possível executar muitos contêineres. O arquivo a seguir mostra uma simples configuração utilizando três nós no cluster.
+The entire description of containers, configuration of each and how they interrelate is made from a file of extension yml, which by convention as the name `docker-compose.yml`. This file contains the configuration of three Cassandra nodes from Docker images.
 
-Toda a descrição de contêineres, configuração de cada um e como eles se inter-relacionam é feita a partir de um arquivo de extensão yml, que por convenção tem como nome `docker-compose.yml`. Esse arquivo contém a configuração de três nós Cassandra a partir de imagens Dockers.
+``` yaml
 
-```yaml
-
-version:  '3.2'
+version: '3.2'
 
 services:
 
@@ -100,48 +104,49 @@ services:
           - cassandranet
         environment:
           broadcast_address: db-01
-          seeds: db-01,db-02,db-03
+          seeds: db-01, db-02, db-03
         volumes:
-          - /home/otaviojava/Environment/nosql/db1:/var/lib/cassandra
-
+          - / home / otaviojava / Environment / nosql / db1: / var / lib / cassandra
+    
     db-02:
         image: "cassandra"
         networks:
           - cassandranet
         environment:
           broadcast_address: db-02
-          seeds: db-01,db-02,db-03
+          seeds: db-01, db-02, db-03
         volumes:
-          - /home/otaviojava/Environment/nosql/db2:/var/lib/cassandra
-
+          - / home / otaviojava / Environment / nosql / db2: / var / lib / cassandra
+    
     db-03:
         image: "cassandra"
         networks:
           - cassandranet
         environment:
           broadcast_address: db-03
-          seeds: db-01,db-02,db-03
+          seeds: db-01, db-02, db-03
         volumes:
-          - /home/otaviojava/Environment/nosql/db3:/var/lib/cassandra
+          - / home / otaviojava / Environment / nosql / db3: / var / lib / cassandra
 
 networks:
     cassandranet:
+
 ```
 
-Com o arquivo `docker-compose.yml` criado, os próximos passos são muito simples:
 
-1. Para iniciar os contêineres: `docker-compose -f docker-compose.yml up -d`
-2. Para parar e remover os contêineres: `docker-compose -f docker-compose.yml down`
+With the `docker-compose.yml` file created, the next steps are very simple:
+
+1. To start the containers: `docker-compose -f docker-compose.yml up -d`
+2. To stop and remove the containers: `docker-compose -f docker-compose.yml down`
 
 
-> Para esse exemplo, estão sendo levantados três clusters. Caso queria rodar localmente verifique se você terá memória suficiente para isso.
+> For this example, three clusters are being built. If you wanted to run locally, make sure you have enough memory for that.
 
-Uma possibilidade é diminuir o consumo de memória dos clusters, por exemplo, iniciando três nós e fazendo com que cada um nó tenha no máximo 1 GB de memória. 
+One possibility is to decrease the memory consumption of the clusters, for example, by starting three nodes and making each node have a maximum of 1 GB of memory.
 
-**Arquivo de configuração de cluster de Cassandra levantando cada nó com 1 gigabyte**
-
+. Cassandra's cluster configuration file lifting each 1 gigabyte node
 ```bash
-version:  '3.2'
+version: '3.2'
 
 services:
 
@@ -151,41 +156,42 @@ services:
           - cassandranet
         environment:
           broadcast_address: db-01
-          seeds: db-01,db-02,db-03
+          seeds: db-01, db-02, db-03
           JVM_OPTS: -Xms1G -Xmx1G
         volumes:
-          - /home/otaviojava/Environment/nosql/db1:/var/lib/cassandra
-
+          - / home / otaviojava / Environment / nosql / db1: / var / lib / cassandra
+    
     db-02:
         image: "cassandra"
         networks:
           - cassandranet
         environment:
           broadcast_address: db-02
-          seeds: db-01,db-02,db-03
+          seeds: db-01, db-02, db-03
           JVM_OPTS: -Xms1G -Xmx1G
         volumes:
-          - /home/otaviojava/Environment/nosql/db2:/var/lib/cassandra
-
+          - / home / otaviojava / Environment / nosql / db2: / var / lib / cassandra
+    
     db-03:
         image: "cassandra"
         networks:
           - cassandranet
         environment:
           broadcast_address: db-03
-          seeds: db-01,db-02,db-03
+          seeds: db-01, db-02, db-03
           JVM_OPTS: -Xms1G -Xmx1G
         volumes:
-          - /home/otaviojava/Environment/nosql/db3:/var/lib/cassandra
+          - / home / otaviojava / Environment / nosql / db3: / var / lib / cassandra
 
 networks:
     cassandranet:
+
 ```
 
-### Conclusão
+### Conclusion
 
-A instalação e a configuração do Cassandra, seja em cluster utilizando contêiner como Docker ou não, mostraram-se algo realmente muito simples se compararmos a uma configuração de cluster semelhante dentro de um banco de dados relacional. 
+The installation and configuration of Cassandra, whether in a cluster using a container such as Docker or not, proved to be something really very simple when compared to a similar cluster configuration within a relational database.
 
-Um ponto importante é que a popularidade do Docker não é em vão: a sua facilidade de execução e de configuração para um nó ou clusters é realmente muito interessante principalmente para desenvolvedores. Talvez, esse seja o motivo por que atualmente o Docker é considerado a maior ferramenta quando o assunto é DevOps. 
+An important point is that the popularity of Docker is not in vain: its ease of execution and configuration for a node or clusters is really very interesting, especially for developers. Perhaps this is the reason why Docker is currently considered the greatest tool when it comes to DevOps.
 
-Nas próximas cenas, será discutido como realizar a comunicação com o Cassandra, algo que será extremamente simples caso você já esteja acostumado com os bancos relacionais.
+In the next scenes, it will be discussed how to communicate with Cassandra, something that will be extremely simple if the reader is already used to relational banks.

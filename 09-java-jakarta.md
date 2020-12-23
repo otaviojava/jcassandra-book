@@ -1,224 +1,173 @@
-# Criando um aplicativo com Java EE, ops, Jakarta EE
+# Creating an application with Java EE, ops, Jakarta EE
 
-Um dos grandes diferenciais dentro do mundo Java são as especificações. Essas especificações são regidas pelo órgão JCP, cujo foco é garantir uma comunicação transparente, uma forte participação entre os grupos de usuários Java ao redor do mundo. 
+One of the big differences within the Java world is the specifications. These specifications are governed by the JCP body, whose focus is to ensure transparent communication, strong participation among groups of Java users around the world. In addition to the community, there are several technical benefits, for example, the possibility of enjoying _multi-vendors_ avoiding being tied to a single supplier (the concept of _vendor lock-in_), commitment to backward compatibility, a rich documentation produced by several companies , among other benefits. The purpose of this chapter is to talk a little about one of the fruits of this organ: Java EE and its solution for the non-relational world.
 
-Além da comunidade, existem diversos benefícios técnicos, por exemplo, a possibilidade de se desfrutar do _multi-vendors_ evitando ficar preso a um único fornecedor (o conceito de _vendor lock-in_), compromisso com a retrocompatibilidade, uma rica documentação realizada por diversas empresas, dentre outros. 
+## What is Jakarta EE?
 
-O objetivo deste capítulo é falar um pouco sobre um dos frutos desse órgão: o Java EE e sua solução para o mundo não relacional.
-
-## O que é Jakarta EE?
-
-Uma das grandes mudanças no mundo Java EE é que, em 2017, ele foi doado para a Eclipse Foundation pela Oracle, então ali se iniciou o processo de transição. Assim, a Oracle não é mais responsável pela especificação Java EE, todo esse trabalho será mantido pela Foundation. Um ponto importante a salientar é o que foi transferido:
+One of the big changes in the Java EE world is that in 2017 it was donated to the Eclipse Foundation by Oracle, so the transition process started there. Thus, Oracle is no longer responsible for the Java EE specification, all of this work will be maintained by the Foundation. An important point to note is what was transferred:
 
 
-* Código que pertence às APIs;
-* As documentações;
-* As implementações de referências que pertenciam à Oracle (vale lembrar de que existem especificações que não são gerenciadas pela Oracle, como é o caso do Bean Validation e o CDI).
+* Code that belongs to the APIs
+* Documentations
+* Reference implementations that belonged to Oracle (remember that there are specifications that are not managed by Oracle, such as Bean Validation and CDI)
 
-Porém, não foi entregue o direito do nome Java, dessa forma, não era possível continuar se chamando “Java EE”. Com isso, foi realizado uma votação por dentro da comunidade e eles elegeram o novo nome: Jakarta EE, além do novo logo.
-Assim, de uma maneira geral o Jakarta EE é apenas a nova casa do Java EE.
+However, the right to the name Java was not delivered, so it was not possible to continue calling it “Java EE”. With that, a poll was held inside the community and they elected the new name: `Jakara EE` in addition to the new logo.
+So, in general, Jakarta EE is just the new home of Java EE.
 
-Como premissa, sob nova direção com Eclipse Foundation, o Jakarta EE manterá compatibilidade com a última versão do Java EE, a versão 8, além de trazer novidades para dentro da plataforma. 
+<img src="imagens/jakartaee.png" alt="The Jakarta EE Logo" title="The Jakarta EE Logo" style="zoom:25%;" />
 
-Um dos pontos importantes é que para trazer mais novidades para a plataforma está sendo criado um novo ciclo para especificação no lugar das famosas JSRs, com foco principal de facilitar o desenvolvimento, realizar entregas rápidas e receber feedbacks de maneira mais rápida da comunidade. 
+As a premise, under a new direction with the Eclipse Foundation, Jakarta EE will maintain compatibility with the latest version of Java EE, version 8, in addition to bringing news to the platform. One of the important points is that in order to bring more news to the platform, a new cycle is being created to specify the famous JSRs, with the main focus on facilitating development, making fast deliveries and receiving feedbacks in faster ways from the community. As a first specification, Eclipse JNoSQL was born, whose focus is on integrating NoSQL and Java databases.
 
-Como primeira especificação, nasceu o Eclipse JNoSQL, cujo foco é realizar integração entre os bancos NoSQL e Java.
 
-```
+## Using Jakarta NoSQL, Jakarta EE's first specification
 
-```
+Jakarta NoSQL is a framework that integrates Java applications with NoSQL databases. It defines a group of APIs whose purpose is to standardize the communication between most databases and their common operations. This helps to decrease coupling with this type of technology used in current applications.
+The project has two layers:
 
-## Utilizando Jakarta NoSQL, a primeira especificação do Jakarta EE
+1. Communication layer: it is a group of APIs that define communication with non-relational databases. Compared to traditional non-relational banks, they are similar to the JDBC APIs. It contains four modules, one for each type of NoSQL bank: key-value, column family, document and graphs.
 
-O Jakarta NoSQL é um framework que realiza a integração entre as aplicações Java com bancos de dados NoSQL. 
+2. Mapping layer: API that helps the developer to integrate with the non-relational database, being oriented to annotations and using technologies such as dependency injection and Bean Validation, which makes it simple for developers to use. Comparing with the classic RDBMS, this layer can be compared with JPA or other mapping frameworks like Hibernate.
 
-Ele define um grupo de APIs cujo objetivo é padronizar a comunicação entre a maioria dos bancos de dados e suas operações comuns. Isso ajuda a diminuir o acoplamento com este tipo de tecnologia utilizada nas aplicações atuais.
 
-O projeto tem duas camadas:
+! [Eclipse JNoSQL architecture] (images / jnosql.png "Jakarta NoSQL architecture")
 
-1. Camada de comunicação: é um grupo de APIs que define a comunicação com os bancos de dados não relacionais. Comparado aos tradicionais bancos não relacionais, eles são semelhantes às APIs JDBC. Ela contém quatro módulos, um para cada tipo de banco NoSQL: chave-valor, família de coluna, documento e grafos.
 
-2. Camada de mapeamento: API que ajuda o desenvolvedor na integração com o banco não relacional, sendo orientada a anotações e utilizando tecnologias como injeção de dependências e Bean Validation, o que torna simples para os desenvolvedores a utilizarem. Comparando com os clássicos RDBMS, essa camada pode ser comparada com o JPA ou outros frameworks de mapeamentos como o Hibernate.
+As with Spring Data, Jakarta NoSQL works in conjunction with a dependency injection engine, however, the CDI specification is used in the project. Using the same principle, we will start with the codes and configuration files that are necessary to make the CDI container lift, in addition to communicating with Cassandra.
 
-![Arquitetura do Eclipse JNoSQL](imagens/jnosql.png "Arquitetura do Jakarta NoSQL")
+> CDI is a very interesting dependency injection framework with several features, such as scope definition, event triggering in a synchronous and asynchronous way, in addition to being the standard of the Java world. To find out more, read the CDI book from Casa do Código: https://www.casadocodigo.com.br/products/livro-cdi
 
-Assim como no Spring Data, o Jakarta NoSQL trabalha em conjunto com um motor de injeção de dependência, porém, no projeto se utiliza a especificação do CDI. Utilizando o mesmo princípio, começaremos com os códigos e arquivos de configuração que são necessários para fazer o contêiner do CDI levantar, além de fazer da comunicação com o Cassandra. 
-
-> O CDI é um framework de injeção de dependência muito interessante e com diversos recursos, como definição de escopo, disparo de evento de maneira síncrona e assíncrona além de ser o padrão do mundo Java. Para conhecer mais uma excelente leitura é o livro de CDI da Casa do Código: https://www.casadocodigo.com.br/products/livro-cdi
-
-O arquivo de configuração é o `bean.xml`, que fica localizado dentro do `META-INF` (a mesma localização do `persistence.xml` do JPA). Também existirá o `CassandraProducer`, que terá como responsabilidade criar a conexão com o Cassandra.
+The configuration file is `bean.xml`, which is located inside` META-INF` (the same location as JPA` persistence.xml`). There will also be `CassandraProducer`, which will be responsible for creating the connection with Cassandra.
 
 ```xml
-<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
-		http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
-       bean-discovery-mode="all">
+<beans xmlns = "http://xmlns.jcp.org/xml/ns/javaee"
+       xmlns: xsi = "http://www.w3.org/2001/XMLSchema-instance"
+       xsi: schemaLocation = "http://xmlns.jcp.org/xml/ns/javaee
+http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd "
+       bean-discovery-mode = "all">
 </beans>
 ```
 
-A classe de configuração “ensina” ao CDI como gerar a dependência de `CassandraColumnFamilyManager`, que é a classe responsável por realizar a comunicação entre o Java e o banco de dados. A classe `Settings` representa as informações para conexão com o banco de dados. Nela, é possível, por exemplo, definir a senha, usuário, clusters, dentre outras informações.
+The configuration class “teaches” the CDI how to generate the dependency on `CassandraColumnFamilyManager`, which is the class responsible for performing the communication between Java and the database. The `Settings` class represents the information for connecting to the database. In it, it is possible, for example, to define the password, user, clusters, among other information.
+
+The next step is to carry out the modeling of the book entity. If you come from the JPA world you will see that the concepts are the same, that is, we use the `Entity` annotation to map an entity, the` Id` annotation to identify the attribute that will be the unique identifier, in addition to the `Column` annotation for identify the other fields that will be persisted.
 
 ```java
-@ApplicationScoped
-public class CassandraProducer {
-
-    private static final String KEYSPACE = "library";
-
-    private CassandraConfiguration cassandraConfiguration;
-
-    private CassandraColumnFamilyManagerFactory managerFactory;
-
-    @PostConstruct
-    public void init() {
-        cassandraConfiguration = new CassandraConfiguration();
-        Settings settings = Settings.of(Collections.singletonMap("cassandra-host-1", "localhost"));
-        managerFactory = cassandraConfiguration.get(settings);
-    }
-
-
-    @Produces
-    @ApplicationScoped
-    public CassandraColumnFamilyManager getManagerCassandra() {
-        return managerFactory.get(KEYSPACE);
-    }
-
-    public void dispose(@Disposes CassandraColumnFamilyManager manager) {
-        manager.close();
-        managerFactory.close();
-    }
-
+@Entity ("book")
+public class Book {
+    @Id ("isbn")
+    private Long isbn;
+    @Column
+    private String name;
+    @Column
+    private String author;
+    @Column
+    private Set <String> categories;
+    // getter and setter
 }
 ```
 
-O próximo passo se encontra em realizar a modelagem da entidade de livros. Caso você venha do mundo JPA verá que os conceitos são os mesmos, ou seja, usamos a anotação `Entity` para mapear uma entidade, a anotação `Id` para identificar o atributo que será o identificador único, além da anotação `Column` para identificar os outros campos que serão persistidos.
-
-
-```java
-@Entity("book")
-public class Book {
-
-    @Id("isbn")
-    private Long isbn;
-
-    @Column
-    private String name;
-
-    @Column
-    private String author;
-
-    @Column
-    private Set<String> categories;
-
-    //getter and setter
-```
-
-
-O Jakarta NoSQL tem como sua maior característica a integração com um framework de injeção de dependência, assim como o Spring Data, porém, a diferença é que a especificação utiliza o CDI, que é a especificação do mundo Java. 
-
-Uma outra semelhança entre as ferramentas de integração se dá pelo fato de que o primeiro passo é levantar o contêiner. O projeto possui uma classe template para operações dentro do Mapper: o `ColumnTemplate`, porém, ele funciona como esqueleto de operações de um Mapper para todos os bancos do tipo família de coluna, ou seja, seria possível trocar para o Hbase com pouco ou nenhum impacto no código.
+Jakarta NoSQL's main feature is the integration with a dependency injection framework, just like Spring Data, however, the difference is that the specification uses the CDI, which is the specification of the Java world. Another similarity between the integration tools is that the first step is to lift the container. The project has a template class for operations within the mapper: `ColumnTemplate`, however, it works as a skeleton of operations for a mapper for all banks of the column family type, that is, it would be possible to switch to Hbase with little or no impact on the code.
 
 
 ```java
 public class App
 {
-    public static void main( String[] args )
+    public static void main (String [] args)
     {
-        try(SeContainer container = SeContainerInitializer.newInstance().initialize()) {
-            ColumnTemplate template =  container.select(ColumnTemplate.class).get();
+        try (SeContainer container = SeContainerInitializer.newInstance (). initialize ()) {
+            ColumnTemplate template = container.select (ColumnTemplate.class) .get ();
 
-            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
-            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
-            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
-            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
-
-            template.insert(cleanCode);
-            template.insert(cleanArchitecture);
-            template.insert(effectiveJava);
-            template.insert(nosql);
-
-            ColumnQuery query = select().from("book").build();
-            Stream<Book> books = template.select(query);
-            books.forEach(System.out::println);
+            Book cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet ("Java", "OO"));
+            Book cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet ("Good practice"));
+            Book effectiveJava = getBook (3L, "Effective Java", "Joshua Bloch", Sets.newHashSet ("Java", "Good practice"));
+            Book nosql = getBook (4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet ("NoSQL", "Good practice"));
+    
+            template.insert (cleanCode);
+            template.insert (cleanArchitecture);
+            template.insert (effectiveJava);
+            template.insert (nosql);
+    
+            ColumnQuery query = select (). From ("book"). Build ();
+            Stream <Book> books = template.select (query);
+            books.forEach (System.out :: println);
         }
     }
-
-    private static Book getBook(long isbn, String name, String author, Set<String> categories) {
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setName(name);
-        book.setAuthor(author);
-        book.setCategories(categories);
+    
+    private static Book getBook (long isbn, String name, String author, Set <String> categories) {
+        Book book = new Book ();
+        book.setIsbn (isbn);
+        book.setName (name);
+        book.setAuthor (author);
+        book.setCategories (categories);
         return book;
     }
 }
 ```
 
-A API do Jakarta NoSQL possui recursos interessantes como a query e a API fluente. Vale salientar que esses recursos são portáveis para outros bancos de dados não relacionais do tipo família de coluna como o Apache Hbase. No código a seguir, mostraremos consultas utilizando a API do Jakarta NoSQL utilizando tanto o recurso de API fluente como utilizando uma query como texto. Um ponto importante é o uso do `Optional` quando se faz busca com apenas um único elemento, ou seja, a API já nasceu acima do Java 8.
+The Jakarta NoSQL API has interesting features like the query and the fluent API, it is worth mentioning, that these features are portable to other non-relational databases of the column family type like Apache Hbase. In the following code, we will show queries using the Jakarta NoSQL API using both the fluent API resource and using a query as text, an important point is the use of `Optional` when searching with only a single element, that is, the API was born above Java 8.
 
 
 ```java
 public class App2 {
 
 
-    public static void main(String[] args) {
-
-        try(SeContainer container = SeContainerInitializer.newInstance().initialize()) {
-            ColumnTemplate template =  container.select(ColumnTemplate.class).get();
-
-            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
-            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
-            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
-            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
-
-            template.insert(cleanCode);
-            template.insert(cleanArchitecture);
-            template.insert(effectiveJava);
-            template.insert(nosql);
-
-
-            Optional<Book> book = template.find(Book.class, 1L);
-            System.out.println("Book found: " + book);
-
-            template.delete(Book.class, 1L);
-
-            System.out.println("Book found: " + template.find(Book.class, 1L));
+    public static void main (String [] args) {
+    
+        try (SeContainer container = SeContainerInitializer.newInstance (). initialize ()) {
+            ColumnTemplate template = container.select (ColumnTemplate.class) .get ();
+    
+            Book cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet ("Java", "OO"));
+            Book cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet ("Good practice"));
+            Book effectiveJava = getBook (3L, "Effective Java", "Joshua Bloch", Sets.newHashSet ("Java", "Good practice"));
+            Book nosql = getBook (4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet ("NoSQL", "Good practice"));
+    
+            template.insert (cleanCode);
+            template.insert (cleanArchitecture);
+            template.insert (effectiveJava);
+            template.insert (nosql);
 
 
-            PreparedStatement prepare = template.prepare("select * from Book where isbn = @isbn");
-            prepare.bind("isbn",2L);
-            Optional<Book> result = prepare.getSingleResult();
-            System.out.println("prepare: " + result);
+            Optional <Book> book = template.find (Book.class, 1L);
+            System.out.println ("Book found:" + book);
+    
+            template.delete (Book.class, 1L);
+    
+            System.out.println ("Book found:" + template.find (Book.class, 1L));
+
+
+            PreparedStatement prepare = template.prepare ("select * from Book where isbn = @isbn");
+            prepare.bind ("isbn", 2L);
+            Optional <Book> result = prepare.getSingleResult ();
+            System.out.println ("prepare:" + result);
         }
-
+    
     }
-
-    private static Book getBook(long isbn, String name, String author, Set<String> categories) {
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setName(name);
-        book.setAuthor(author);
-        book.setCategories(categories);
+    
+    private static Book getBook (long isbn, String name, String author, Set <String> categories) {
+        Book book = new Book ();
+        book.setIsbn (isbn);
+        book.setName (name);
+        book.setAuthor (author);
+        book.setCategories (categories);
         return book;
     }
 
 }
 ```
 
-
-No mapeamento da categoria, a sequência continua semelhante, com diferença do mapeamento do `UDT`. Dentro do Jakarta NoSQL, existe o recurso de extensões que permite APIs de usos específicos para cada banco de dados. Por exemplo, utilizaremos uma extensão do Cassandra que permite que utilizemos a anotação `UDT` para mapear nosso código para o tipo UDT, como mostra o mapeamento a seguir.
+In the category mapping, the sequence remains similar, with the difference of the `UDT` mapping. Within Jakarta NoSQL, there is an extension feature that allows APIs for specific uses for each database. For example, we will use an extension of Cassandra that allows us to use the annotation `UDT` to map our code to the UDT type, as shown in the following mapping.
 
 ```java
-@Entity("category")
+@Entity ("category")
 public class Category {
 
-    @Id("name")
+    @Id ("name")
     private String name;
-
+    
     @Column
-    @UDT("book")
-    private Set<BookType> books;
-    //getter and setter
+    @UDT ("book")
+    private Set <BookType> books;
+    // getter and setter
 }
 
 
@@ -226,149 +175,148 @@ public class BookType {
 
     @Column
     private Long isbn;
-
+    
     @Column
     private String name;
-
+    
     @Column
     private String author;
-
+    
     @Column
-    private Set<String> categories;
-    //getter and setter
+    private Set <String> categories;
+    // getter and setter
 }
 ```
 
-
-Uma vez utilizando anotações específicas do Cassandra, será utilizado o `CassandraTemplate`, que é uma especialização do `ColumnTemplate` com recursos específicos para o Cassandra como, por exemplo, a possibilidade de definir o nível de consistência durante a requisição e realizar queries nativas, ou seja, CQL.
+Once using Cassandra-specific annotations, `CassandraTemplate` will be used, which is a specialization of` ColumnTemplate` with specific features for Cassandra, such as the possibility of defining the level of consistency during the request and making native queries, that is, CQL.
 
 
 ```java
 public class App4 {
 
 
-    public static void main(String[] args) {
-        try(SeContainer container = SeContainerInitializer.newInstance().initialize()) {
-            CassandraTemplate template =  container.select(CassandraTemplate.class).get();
+    public static void main (String [] args) {
+        try (SeContainer container = SeContainerInitializer.newInstance (). initialize ()) {
+            CassandraTemplate template = container.select (CassandraTemplate.class) .get ();
+    
+            BookType cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet ("Java", "OO"));
+            BookType cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet ("Good practice"));
+            BookType effectiveJava = getBook (3L, "Effective Java", "Joshua Bloch", Sets.newHashSet ("Java", "Good practice"));
+            BookType nosqlDistilled = getBook (4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet ("NoSQL", "Good practice"));
 
-            BookType cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
-            BookType cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
-            BookType effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
-            BookType nosqlDistilled = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
 
-
-            Category java = getCategory("Java", Sets.newHashSet(cleanCode, effectiveJava));
-            Category oo = getCategory("OO", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture));
-            Category goodPractice = getCategory("Good practice", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture, nosqlDistilled));
-            Category nosql = getCategory("NoSQL", Sets.newHashSet(nosqlDistilled));
-
-            template.insert(java);
-            template.insert(oo);
-            template.insert(goodPractice);
-            template.insert(nosql);
-
-            Optional<Category> category = template.find(Category.class, "Java");
-            System.out.println(category);
-            template.delete(Category.class, "Java");
-
-            PreparedStatement prepare = template.prepare("select * from Category where name = @name");
-            prepare.bind("name","NoSQL");
-            Optional<Book> result = prepare.getSingleResult();
-            System.out.println("prepare: " + result);
+            Category java = getCategory ("Java", Sets.newHashSet (cleanCode, effectiveJava));
+            Category oo = getCategory ("OO", Sets.newHashSet (cleanCode, effectiveJava, cleanArchitecture));
+            Category goodPractice = getCategory ("Good practice", Sets.newHashSet (cleanCode, effectiveJava, cleanArchitecture, nosqlDistilled));
+            Category nosql = getCategory ("NoSQL", Sets.newHashSet (nosqlDistilled));
+    
+            template.insert (java);
+            template.insert (oo);
+            template.insert (goodPractice);
+            template.insert (nosql);
+    
+            Optional <Category> category = template.find (Category.class, "Java");
+            System.out.println (category);
+            template.delete (Category.class, "Java");
+    
+            PreparedStatement prepare = template.prepare ("select * from Category where name = @name");
+            prepare.bind ("name", "NoSQL");
+            Optional <Book> result = prepare.getSingleResult ();
+            System.out.println ("prepare:" + result);
         }
-
+    
     }
-
-    private static Category getCategory(String name, Set<BookType> books) {
-        Category category = new Category();
-        category.setName(name);
-        category.setBooks(books);
+    
+    private static Category getCategory (String name, Set <BookType> books) {
+        Category category = new Category ();
+        category.setName (name);
+        category.setBooks (books);
         return category;
     }
-
-    private static BookType getBook(long isbn, String name, String author, Set<String> categories) {
-        BookType book = new BookType();
-        book.setIsbn(isbn);
-        book.setName(name);
-        book.setAuthor(author);
-        book.setCategories(categories);
+    
+    private static BookType getBook (long isbn, String name, String author, Set <String> categories) {
+        BookType book = new BookType ();
+        book.setIsbn (isbn);
+        book.setName (name);
+        book.setAuthor (author);
+        book.setCategories (categories);
         return book;
     }
 
 }
 ```
 
-Além das classes templates, o Jakarta NoSQL oferece suporte ao conceito de interfaces repositórios que segue o mesmo princípio do Spring Data: interfaces que visam ter um algo grau de abstração para realizar consultas dentro do banco. Ele também traz uma interface que já possui diversos métodos e `method by query` que serão implementados de maneira automática pelo framework. Nesse caso, será utilizado o `CassandraRepository`, que é uma especialização do `Repository` que permite, por exemplo, o uso da anotação `CQL` que, basicamente, executa Cassandra Query Language e converte para a entidade automaticamente.
+In addition to the template classes, Jakarta NoSQL supports the concept of repository interfaces that follows the same principle as Spring Data: interfaces that aim to have a somewhat degree of abstraction to perform queries within the database. It also brings an interface that already has several methods and `method by query` that will be implemented automatically by the framework. In this case, `CassandraRepository` will be used, which is a specialization of` Repository` that allows, for example, the use of the `CQL` annotation, which basically executes Cassandra Query language and converts it to the entity automatically.
 
 
 ```java
-public interface BookRepository extends CassandraRepository<Book, Long> {
+public interface BookRepository extends CassandraRepository <Book, Long> {
 
-    Stream<Book> findAll();
-
-    @CQL("select * from book")
-    Stream<Book> findAll1();
-
-    @Query("select * from Book")
-    Stream<Book> findAll2();
+    Stream <Book> findAll ();
+    
+    @CQL ("select * from book")
+    Stream <Book> findAll1 ();
+    
+    @Query ("select * from Book")
+    Stream <Book> findAll2 ();
 }
 
 ```
 
-> A diferença entre as anotações `CQL` e `Query` é que a primeira executa o CQL, que é a query nativa do Cassandra, assim, exclusiva do framework, e a segunda é a API do Jakarta NoSQL, ou seja, poderá ser executada por outros bancos de dados que suporte a camada de comunicação do projeto de especificação do mundo Jakarta EE.
+> The difference between the `CQL` and` Query` annotations is that the first executes CQL, which is Cassandra's native query, thus exclusive to the framework, and the second is the Jakarta NoSQL API, that is, it can be executed by other databases that support the communication layer of the Jakarta EE world specification project.
 
-No código a seguir faremos a nossa integração com o `BookRepository`. O que mais impressiona, certamente, é a facilidade em utilizá-lo uma vez que não precisamos nos preocupar com a implementação da interface. Um ponto importante é que essa interface herda de `CassandraRepository`, o que faz com que esse repositório herde vários métodos como o `save`, `findById`, dentre outros. 
+In the code below, we will do our integration with `BookRepository`. What most impresses, certainly, is the ease of using it since we don't have to worry about implementing the interface. An important point is that this interface inherits from `CassandraRepository`, which makes this repository inherit several methods such as` save`, `findById`, among others.
 
 ```java
 public class App5
 {
-    public static void main( String[] args )
+    public static void main (String [] args)
     {
-        try(SeContainer container = SeContainerInitializer.newInstance().initialize()) {
-            BookRepository repository =  container.select(BookRepository.class).get();
+        try (SeContainer container = SeContainerInitializer.newInstance (). initialize ()) {
+            BookRepository repository = container.select (BookRepository.class) .get ();
 
-            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
-            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
-            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
-            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
-
-            repository.save(cleanCode);
-            repository.save(cleanArchitecture);
-            repository.save(effectiveJava);
-            repository.save(nosql);
-
-            Optional<Book> book = repository.findById(1L);
-            System.out.println(book);
-
-            repository.deleteById(1L);
-
-            System.out.println("Using method query");
-            repository.findAll().forEach(System.out::println);
-            System.out.println("Using CQL");
-            repository.findAll1().forEach(System.out::println);
-            System.out.println("Using query JNoSQL");
-            repository.findAll2().forEach(System.out::println);
-
+            Book cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet ("Java", "OO"));
+            Book cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet ("Good practice"));
+            Book effectiveJava = getBook (3L, "Effective Java", "Joshua Bloch", Sets.newHashSet ("Java", "Good practice"));
+            Book nosql = getBook (4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet ("NoSQL", "Good practice"));
+    
+            repository.save (cleanCode);
+            repository.save (cleanArchitecture);
+            repository.save (effectiveJava);
+            repository.save (nosql);
+    
+            Optional <Book> book = repository.findById (1L);
+            System.out.println (book);
+    
+            repository.deleteById (1L);
+    
+            System.out.println ("Using method query");
+            repository.findAll (). forEach (System.out :: println);
+            System.out.println ("Using CQL");
+            repository.findAll1 (). forEach (System.out :: println);
+            System.out.println ("Using query JNoSQL");
+            repository.findAll2 (). forEach (System.out :: println);
+    
         }
     }
-
-    private static Book getBook(long isbn, String name, String author, Set<String> categories) {
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setName(name);
-        book.setAuthor(author);
-        book.setCategories(categories);
+    
+    private static Book getBook (long isbn, String name, String author, Set <String> categories) {
+        Book book = new Book ();
+        book.setIsbn (isbn);
+        book.setName (name);
+        book.setAuthor (author);
+        book.setCategories (categories);
         return book;
     }
 }
 
 ```
 
-> O projeto ainda tem diversos recursos que não foram exibidos aqui, por exemplo, a realizar operações de maneira assíncrona. Para saber mais acesse: http://www.jnosql.org/
+> The project still has several resources that were not shown here, for example, to perform operations asynchronously. To learn more visit: http://www.jnosql.org/
 
-> O código com todo exemplo se encontra em: https://github.com/otaviojava/cassandra-java-code para criar as estruturas do Cassandra, consulte o capítulo “Realizando integração com Java”.
+> The code with every example can be found at: https://github.com/otaviojava/cassandra-java-code to create Cassandra structures, see the chapter “Performing integration with Java”
 
 
-### Conclusão
+### Conclusion
 
-Com uma nova casa e de forma ainda mais vibrante, nasce o projeto Eclipse JNoSQL sob nova direção do Jakarta EE com a Eclipse Foundation. O Jakarta NoSQL tem como propósito facilitar a integração entre Java e NoSQL com a estratégia de dividir a camada de comunicação e mapeamento. Atualmente, ele suporta mais de trinta bancos de dados. Muitas melhorias são esperadas, porém, o grande benefício da plataforma é que ela é totalmente orientada à comunidade. Você mesmo pode sair da cadeira e ajudar o Jakarta EE agora mesmo.
+With a new home and in an even more vibrant way, the Eclipse JNoSQL project was born under a new direction by Jakarta EE with the Eclipse Foundation. Jakarta NoSQL aims to facilitate the integration between Java and NoSQL with the strategy of dividing the communication and mapping layer. It currently supports more than thirty databases. Many improvements are expected, however, the great benefit of the platform is that it is totally community oriented. You can get out of your chair and help Jakarta EE yourself right now.

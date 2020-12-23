@@ -1,36 +1,33 @@
-# Modelando sua aplicação com Cassandra
+# Modeling your application with Cassandra
 
 
-Dentro da Ciência de Dados, a modelagem certamente é um dos pontos mais enigmáticos e mais desafiadores. Um erro nesse ponto significará impacto de performance tanto na leitura quanto na escrita de informações no banco de dados. No mundo relacional, quem desenvolve já está acostumado com o conceito de normalização - que é um conjunto de regras que visa, principalmente, à organização dentro do banco de dados relacional para evitar a redundância de dados. 
+Within data science, modeling is certainly one of the most enigmatic and most challenging points. An error at this point will mean a performance impact in both reading and writing information in the database. In the relational world, those who develop it are already accustomed to the concept of normalization - which is a set of rules that mainly aims at organizing within the relational database to avoid data redundancy. The point to be discussed is that, when relational banks emerged, they were focused on avoiding redundancy, after all, it was a big challenge since the price of storage was something really very expensive. For example, in 1980 a server that stored twenty-six megabytes had a cost of almost five thousand dollars, today, a terabyte costs less than fifty dollars.
 
-O ponto a ser discutido é que, quando surgiram os bancos relacionais, eles apresentavam o foco de evitar a redundância, afinal, era um grande desafio, já que o preço de armazenamento era algo realmente muito caro. Por exemplo, em 1980 um servidor que armazenava vinte e seis megabytes tinha um custo de quase cinco mil dólares, atualmente, um terabyte custa menos de cinquenta dólares.
+![A 5MB hard drive in 1956 manufactured by IBM.](imagens/ibm_history_server.png "A 5MB hard drive in 1956 manufactured by IBM.")
 
-![Um HD com 5MB em 1956 fabricado pela IBM. Fonte:  https://thenextweb.com/shareables/2011/12/26/this-is-what-a-5mb-hard-drive-looked-like-is-1956-required-a-forklift/ {w=40%}](imagens/ibm_history_server.png)
+The consequence of normalization is that, with a great complexity of data and variety, to keep the data not duplicated it is necessary to perform a high amount of joins, the union of several tables, and consequently there is an increase in the response time of these queries . The current challenge is in response time and no longer in storage, as it was before. The purpose of this chapter is to demonstrate tips and motivations for modeling inside Cassandra.
 
-A consequência da normalização é que, com uma grande complexidade dos dados e a variedade, para manter os dados não duplicados é necessário realizar uma alta quantidade de joins, a união de várias tabelas, e por consequência há um aumento no tempo de resposta dessas queries. O desafio atual se encontra no tempo de resposta e não mais no armazenamento, como era anteriormente. 
+## Modeling tips
 
-O objetivo deste capítulo é demonstrar dicas e motivações para realizar uma modelagem dentro do Cassandra.
+Unlike relational banks in which normalization rules exist, within Cassandra the modeling principles are defined much more by the context of the application or volume. In other words, the same e-commerce system, for example, can be modeled differently depending on the resources and volume of each of these businesses. As most developers start with relational, the first tips will be precisely to understand what *are* not the goals of modeling with Cassandra:
 
-## Dicas de modelagem
+* Minimize the number of readings: within Cassandra writing is relatively inexpensive and efficient, different from reading; therefore, prioritize writing and try to read the information by the unique identifier as much as possible.
+* Normalization or minimizing duplicate data: denormalization and duplication of data are the best friends for modeling within Cassandra. Making reading as easy as possible is always the best strategy within Cassandra.
+* Emulate: don't try to emulate or in any way simulate the relational banks within Cassandra. The result will be similar to using a fork as a knife.
 
-Diferente dos bancos relacionais em que existem as regras de normalização, dentro do Cassandra os princípios de modelagem são definidos muito mais pelo contexto da aplicação ou volumetria. Ou seja, um mesmo sistema de e-commerce, por exemplo, pode ser modelado de maneira diferente a depender dos recursos e volumetria de cada um desses negócios. Como a maioria dos desenvolvedores começa com relacional, as primeiras dicas serão justamente entender quais *não* são os objetivos da modelagem com o Cassandra:
+A good first step to start modeling is to know what queries the application needs. Thus, stressing, creating families of columns that satisfy that request in just one query is the big goal. There are several modeling cases within the Cassandra world, for the next topic, the next step will be to demonstrate some modeling examples.
 
-* Minimizar o número de leituras: dentro do Cassandra a escrita é relativamente barata e de maneira eficiente, diferente da leitura; assim, priorize a escrita e tente ler as informações pelo identificador único o máximo possível.
-* Normalização ou minimizar dados duplicados: desnormalização e duplicação de dados são as melhores amigas para uma modelagem dentro do Cassandra. Facilitar o máximo possível a leitura é sempre a melhor estratégia dentro do Cassandra.
-* Emular: não tente emular ou simular de alguma maneira os bancos relacionais dentro do Cassandra. O resultado será semelhante a usar um garfo como faca.
+### One-to-one cases
 
-Um bom primeiro passo para começar a modelagem é saber de quais queries a aplicação precisa. Assim, salientando, criar famílias de colunas que satisfaçam aquela requisição apenas em uma query é o grande objetivo. Existem vários casos de modelagem dentro do mundo Cassandra. Para o próximo tópico, o próximo passo será demonstrar alguns exemplos de modelagem.
+Imagine the following scenario:
+Each book (ISBN, name and year) has its author (name and country).
 
-### Casos um para um
-
-Imagine o seguinte cenário: cada livro (ISBN, nome e ano) tem o seu autor (nome e país).
-
-A primeira pergunta para a modelagem: quais queries queremos suportar?
-
-Para esse caso, gostaríamos de buscar os livros a partir do ISBN uma vez que nesse caso não existe motivo para que se exista uma família de coluna para autores.
+The first question for modeling:
+What queries do we want to support?
+For this case, we would like to search for books from the ISBN since in this case there is no reason to have a column family for authors.
 
 ```sql
-CREATE KEYSPACE IF NOT EXISTS library  WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 3};
+CREATE KEYSPACE IF NOT EXISTS library WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
 
 DROP COLUMNFAMILY IF EXISTS library.book;
 DROP TYPE IF EXISTS library.author;
@@ -49,25 +46,25 @@ CREATE COLUMNFAMILY IF NOT EXISTS library.book (
 );
 ```
 
-No primeiro exemplo, houve a criação do tipo autor do qual ele faz parte.
+In the first example, there was the creation of the author type of which he is a part.
 
 ```sql
-INSERT INTO library.book (isbn, name, year, author) values (1,'Clean Code', 2008, {name: 'Robert Cecil Martin', country: 'USA'});
-INSERT INTO library.book (isbn, name, year, author) values (2,'Clean Architecture', 2017, {name: 'Robert Cecil Martin', country: 'USA'});
-INSERT INTO library.book (isbn, name, year, author) values (3,'Agile Principles, Patterns, and Practices in C#', 2002, {name: 'Robert Cecil Martin', country: 'USA'});
-INSERT INTO library.book (isbn, name, year, author) values (4,'Java EE 8 Cookbook', 2018, {name: 'Elder Moraes', country: 'Brazil'});
-INSERT INTO library.book (isbn, name, year, author) values (5,'Effective Java', 2001, {name: 'Joshua Bloch', country: 'USA'});
-INSERT INTO library.book (isbn, name, year, author) values (6,'Java Puzzlers: Traps, Pitfalls, and Corner Cases', 2005, {name: 'Joshua Bloch', country: 'USA'});
+INSERT INTO library.book (isbn, name, year, author) values (1, 'Clean Code', 2008, {name: 'Robert Cecil Martin', country: 'USA'});
+INSERT INTO library.book (isbn, name, year, author) values (2, 'Clean Architecture', 2017, {name: 'Robert Cecil Martin', country: 'USA'});
+INSERT INTO library.book (isbn, name, year, author) values (3, 'Agile Principles, Patterns, and Practices in C #', 2002, {name: 'Robert Cecil Martin', country: 'USA'});
+INSERT INTO library.book (isbn, name, year, author) values (4, 'Java EE 8 Cookbook', 2018, {name: 'Elder Moraes', country: 'Brazil'});
+INSERT INTO library.book (isbn, name, year, author) values (5, 'Effective Java', 2001, {name: 'Joshua Bloch', country: 'USA'});
+INSERT INTO library.book (isbn, name, year, author) values (6, 'Java Puzzlers: Traps, Pitfalls, and Corner Cases', 2005, {name: 'Joshua Bloch', country: 'USA'});
 ```
 
-No cenário é possível ver o impacto na duplicação das informações, no caso dos autores. Porém, a mudança de nome e nacionalidade de um autor tende a ser algo extremamente raro.
+In the scenario it is possible to see the impact on the duplication of information, in the case of the authors. However, changing an author's name and nationality ends to be extremely rare.
 
-### Casos um para N
+### Cases one to N
 
-Seguindo com o exemplo anterior, na relação livro-autor, este exemplo ampliará o número de autores, afinal, existem livros que possuem mais de um escritor. Com isso, existirá uma relação de um livro para N autores. Porém, como o objetivo da leitura não mudou, a modelagem não modificará.
+Following the previous example, in the book-author relationship, this example will increase the number of authors, after all, there are books that have more than one writer. With that, there will be a list of a book for N authors. However, as the purpose of the reading has not changed, the modeling will not change.
 
 ```sql
-CREATE KEYSPACE IF NOT EXISTS library  WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 3};
+CREATE KEYSPACE IF NOT EXISTS library WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
 
 DROP COLUMNFAMILY IF EXISTS library.book;
 DROP TYPE IF EXISTS library.author;
@@ -81,28 +78,30 @@ CREATE COLUMNFAMILY IF NOT EXISTS library.book (
     isbn bigint,
     name text,
     year int,
-    authors set<frozen<author>>,
+    authors set <frozen <author>>,
     PRIMARY KEY (isbn)
 );
-//INSERT
-INSERT INTO library.book (isbn, name, year, authors) values (1,'Design Patterns: Elements of Reusable Object-Oriented Software', 1994,
+// INSERT
+INSERT INTO library.book (isbn, name, year, authors) values (1, 'Design Patterns: Elements of Reusable Object-Oriented Software', 1994,
 {{name: 'Erich Gamma', country: 'Switzerland'}, {name: 'John Vlissides', country: 'USA'}});
-INSERT INTO library.book (isbn, name, year, authors) values (2,'The Pragmatic Programmer', 1999,
+INSERT INTO library.book (isbn, name, year, authors) values (2, 'The Pragmatic Programmer', 1999,
 {{name: 'Andy Hunt', country: 'Switzerland'}, {name: 'Dave Thomas', country: 'England'}});
 ```
 
-O impacto segue semelhante ao anterior: um alto grau de dados duplicados. Isso será de grande incômodo para quem vier do mundo relacional, porém, é importante salientar: **desnormalização será a melhor amiga da modelagem no Cassandra**.
 
-### Casos N para N
 
-Para o último exemplo, o objetivo é criar uma relação N para N. Seguindo o escopo de negócio de uma biblioteca, é possível pensar na relação entre revistas e artigos porque uma revista possui N artigos da mesma forma que um artigo pode estar em N revistas. Independente disso, no Cassandra a pergunta é a mesma: quais queries o banco de dados deseja suportar? Nesse cenário existirão duas:
+The impact remains similar to the previous one: a high degree of duplicate data. This will be of great inconvenience for those coming from the relational world, however, it is important to note: **denormalization will be Cassandra's best modeling friend**.
 
-* Buscar a revista pelo ISSN
-* Buscar o artigo pelo título
+### Cases N to N
+
+For the last example, the goal is to create an N to N relationship. Following the business scope of a library, it is possible to think about the relationship between magazines and articles because a magazine has N articles in the same way that an article can be in N magazines . Regardless, in Cassandra the question is the same: what queries does the database want to support? In this scenario there will be two:
+
+* Search the magazine by ISSN
+* Search the article by title
 
 
 ```sql
-CREATE KEYSPACE IF NOT EXISTS library  WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 3};
+CREATE KEYSPACE IF NOT EXISTS library WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
 
 DROP COLUMNFAMILY IF EXISTS library.magazine;
 DROP COLUMNFAMILY IF EXISTS library.article;
@@ -119,20 +118,20 @@ CREATE TYPE IF NOT EXISTS library.magazine (
     issn bigint,
     name text,
     year int,
-    author frozen<author>
+    author frozen <author>
 );
 
 CREATE TYPE IF NOT EXISTS library.article (
     name text,
     year int,
-    author frozen<author>
+    author frozen <author>
 );
 
 CREATE COLUMNFAMILY IF NOT EXISTS library.magazine (
    issn bigint,
    name text,
    editor author,
-   articles set<frozen<article>>,
+   articles set <frozen <article>>,
    PRIMARY KEY (issn)
 );
 
@@ -140,16 +139,15 @@ CREATE COLUMNFAMILY IF NOT EXISTS library.article (
    title text,
    year int,
    author author,
-   magazines set<frozen<magazine>>,
+   magazines set <frozen <magazine>>,
    PRIMARY KEY (title, year)
 );
-//INSERT
-INSERT INTO library.magazine (issn, name, editor, articles) values (1, 'Java Magazine', {name: 'Java Editor', country: 'USA'}, {{name: 'Jakarta EE', year: 2018, author: {name: 'Elder Moraes', country: 'Brazil'}},
+// INSERT
+INSERT INTO library.magazine (issn, name, editor, articles) values (1, 'Java Magazine', {name: 'Java Editor', country: 'USA'}, {{name: 'Jakarta EE', year: 2018 , author: {name: 'Elder Moraes', country: 'Brazil'}},
 {name: 'Cloud and Docker', year: 2018, author: {name: 'Bruno Souza', country: 'Brazil'}}});
 ```
 
-Nesse caso, é bastante simples uma vez que ambas as entidades, revistas e artigos, não necessitam realizar alteração.
+In this case it is quite simple since both entities, magazines and articles, do not need to make changes.
 
-### Conclusão
-
-Com isso foram apresentados os conceitos de modelagem dentro de um banco de dados Cassandra, demonstrando como ele é diferente de uma base de dados relacional. O núcleo de seu conceito é justamente escrever ao máximo, uma vez que tende a ser uma operação barata, para justamente diminuir o número de operações na leitura. No mundo ideal é possível criar queries e consultas sem o uso de índices, seja ele como secundário ou com o recurso de `ALLOW FILTERING`, porém, existirá um trabalho gigantesco para gerenciar a duplicação de dados que ocorrerá.
+### Conclusion
+With that, modeling concepts were presented within a Cassandra database, demonstrating how it is different from a relational database. Its core concept is precisely to write as much as possible, since it tends to be a cheap operation, to precisely decrease the number of operations in reading. In the ideal world, it is possible to create queries and queries without using indexes either as a secondary or with the `ALLOW FILTERING` feature, however, there will be a huge job to manage the duplication of data that will exist.

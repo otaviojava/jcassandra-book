@@ -1,14 +1,15 @@
-# Criando um aplicativo com Hibernate
+# Creating an application with Hibernate
 
-No mundo relacional existem diversos frameworks ORM que facilitam a integração entre a aplicação e o objeto relacional, dentre eles, o mais famoso no mundo Java é o Hibernate. Trata-se de um ORM Java open source criado por Gavin King e, atualmente, é desenvolvido pela RedHat. 
+In the relational world there are several ORM frameworks that facilitate the integration between the application and the relational object, among them, the most famous in the Java world is Hibernate. It is an open source Java ORM created by Gavin King and is currently developed by RedHat. In the Java world, there is a standardization process which is the JSR, Java Speficication Request, governed by the JCP, Java Community Process (At the moment As I write this chapter, there is a migration process from the JCP process to the Eclipse Foundation with a new name, which will be discussed in the chapter on Jakarta). The specifications guarantee several benefits, among them several companies, academic institutions and community members contributing to the projects, totally oriented to the community. And the main thing: blocking the vendor-lock in, so the developer does not have the risk of the project being discontinued by one company, since it may be replaced by others. The specification between the Java world and the relational bank is JPA, which is part of the Java EE platform, now Jakarta EE.
 
-No mundo Java, existe um processo de padronização, que é a JSR, Java Speficication Request, regido pelo JCP, Java Community Process (no momento que eu escrevo este capítulo existe um processo de migração do processo do JCP para Eclipse Foundation com um novo nome, que será discutido no capítulo sobre Jakarta). As especificações garantem diversos benefícios, dentre eles diversas empresas, instituições acadêmicas e membros da comunidade contribuindo nos projetos, totalmente orientado à comunidade. E o principal: o bloqueio do _vendor lock-in_, assim, o desenvolvedor não tem o risco de o projeto ser descontinuado por uma empresa, uma vez que poderá ser substituída por outras. A especificação entre o mundo Java e o banco relacional é o JPA, que faz parte da plataforma Java EE, agora Jakarta EE.
+Like Spring, Hibernate has several subprojects to facilitate the development world more focused on the world of data persistence, for example, Hibernate Search, Hibernate Validator, among other things. In this chapter, let's talk a little more about Hibernate and its relationship with the non-relational world with Hibernate OGM.
 
-Assim como o Spring, o Hibernate possui diversos subprojetos para facilitar o mundo de desenvolvimento mais focado no mundo de persistência de dados, por exemplo, Hibernate Search, Hibernate Validator, dentre outras coisas. Neste capítulo, falemos um pouco mais sobre o Hibernate e sua relação com o mundo não relacional com o Hibernate OGM.
 
-## O que é Hibernate OGM?
+## What is Hibernate OGM?
 
-Com o objetivo de facilitar a integração e diminuir a curva de aprendizagem para aprender bancos de dados não relacionais, nasceu o Hibernate OGM. Sua abordagem é bastante simples: utilizar a API JPA, que os desenvolvedores Java já conhecem, com bancos de dados NoSQL. Atualmente Hibernate OGM tem suporte para diversos projetos:
+
+In order to facilitate integration and reduce the learning curve to learn non-relational databases, Hibernate OGM was born. Its approach is quite simple, which is to use the JPA API, which Java developers already know, with NoSQL databases. Currently Hibernate OGM has support for several projects:
+
 
 * Cassandra
 * CouchDB
@@ -16,275 +17,274 @@ Com o objetivo de facilitar a integração e diminuir a curva de aprendizagem pa
 * Apache Ignite
 * Redis
 
-### Exemplo prático com Hibernate OGM
 
-Com uma breve introdução da história do Hibernate e da importância desse projeto no mundo Java, seguiremos para a parte prática. Sua configuração é definida em duas partes: 
+## Practical example with Hibernate OGM
 
-1. A inserção de dependências, a partir do Maven.
-2. A adição das configurações do banco de dados a partir do arquivo `persistence.xml` dentro da pasta `META-INF`.
+With a brief introduction to the history of Hibernate and the importance of this project in the Java world, we will move on to the practical part. Its configuration is defined in two parts:
+
+1. The insertion of dependencies, from the maven.
+2. Adding the database settings from the `persistence.xml` file inside the` META-INF` folder.
 
 
 ```xml
 <dependency>
-    <groupId>org.hibernate.ogm</groupId>
-    <artifactId>hibernate-ogm-cassandra</artifactId>
-    <version>5.1.0.Final</version>
+    <groupId> org.hibernate.ogm </groupId>
+    <artifactId> hibernate-ogm-cassandra </artifactId>
+    <version> 5.1.0.Final </version>
 </dependency>
 <dependency>
-    <groupId>org.jboss.logging</groupId>
-    <artifactId>jboss-logging</artifactId>
-    <version>3.3.0.Final</version>
+    <groupId> org.jboss.logging </groupId>
+    <artifactId> jboss-logging </artifactId>
+    <version> 3.3.0.Final </version>
 </dependency>
 <dependency>
-    <groupId>org.hibernate</groupId>
-    <artifactId>hibernate-search-orm</artifactId>
-    <version>5.6.1.Final</version>
+    <groupId> org.hibernate </groupId>
+    <artifactId> hibernate-search-orm </artifactId>
+    <version> 5.6.1.Final </version>
 </dependency>
 ```
 
-A configuração entre o banco de dados e o framework Java é realizada a partir do arquivo `persistence.xml`, seguindo a linha da configuração do JPA, ou seja, não existe nenhuma novidade para quem já conhece essa especificação.
+The configuration between the database and the Java framework is performed from the `persistence.xml` file, following the JPA configuration line, that is, there is no news for a developer who already knows this specification.
 
-* `hibernate.ogm.datastore.provider`: define qual implementação o Hibernate utilizará, nesse caso, a implementação que utiliza o Cassandra.
-* `hibernate.ogm.datastore.database`: para o Cassandra é o `keyspace`, ou seja, para esse exemplo será o `library`.
-* `hibernate.search.default.directory_provider` e `hibernate.search.default.indexBase`: uma das dependências existentes no Hibernate OGM Cassandra é o Hiberante Search, que é a parte do Hibernate que oferece o `full-search` para os objetos gerenciados pelo Hibernate. É possível realizar buscas utilizando o Lucene ou Elasticsearch.
+* `hibernate.ogm.datastore.provider`: defines which implementation Hibernate will use, in this case, the implementation that uses Cassandra.
+* `hibernate.ogm.datastore.database`: for Cassandra it is the` keyspace`, that is, for this example it will be the `library`.
+* `hibernate.search.default.directory_provider` and` hibernate.search.default.indexBase`: One of the dependencies in Hibernate OGM Cassandra is Hiberante Search, which is the part of Hibernate that offers `full-search` for objects managed by Hibernate. Searches can be performed using Lucene or Elasticsearch.
 
 
 ```xml
-<?xml version="1.0" encoding="utf-8"?>
-<persistence xmlns="http://java.sun.com/xml/ns/persistence"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
-             version="2.0">
+<? xml version = "1.0" encoding = "utf-8"?>
+<persistence xmlns = "http://java.sun.com/xml/ns/persistence"
+             xmlns: xsi = "http://www.w3.org/2001/XMLSchema-instance"
+             xsi: schemaLocation = "http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version = "2.0">
 
-    <persistence-unit name="hibernate">
-        <provider>org.hibernate.ogm.jpa.HibernateOgmPersistence</provider>
-        <class>com.nosqlxp.cassandra.Book</class>
+    <persistence-unit name = "hibernate">
+        <provider> org.hibernate.ogm.jpa.HibernateOgmPersistence </provider>
+        <class> com.nosqlxp.cassandra.Book </class>
         <properties>
-            <property name="hibernate.ogm.datastore.provider" value="org.hibernate.ogm.datastore.cassandra.impl.CassandraDatastoreProvider"/>
-            <property name="hibernate.ogm.datastore.host" value="localhost:9042"/>
-            <property name="hibernate.ogm.datastore.create_database" value="true"/>
-            <property name="hibernate.ogm.datastore.database" value="library"/>
-            <property name="hibernate.search.default.directory_provider" value="filesystem"/>
-            <property name="hibernate.search.default.indexBase" value="/tmp/lucene/data"/>
+            <property name = "hibernate.ogm.datastore.provider" value = "org.hibernate.ogm.datastore.cassandra.impl.CassandraDatastoreProvider" />
+            <property name = "hibernate.ogm.datastore.host" value = "localhost: 9042" />
+            <property name = "hibernate.ogm.datastore.create_database" value = "true" />
+            <property name = "hibernate.ogm.datastore.database" value = "library" />
+            <property name = "hibernate.search.default.directory_provider" value = "filesystem" />
+            <property name = "hibernate.search.default.indexBase" value = "/ tmp / lucene / data" />
         </properties>
     </persistence-unit>
 </persistence>
 ```
 
-Com a parte de infraestrutura pronta dentro do projeto, o próximo passo é a modelagem. Toda anotação do modelo é feita utilizando as anotações do JPA, o que facilita para quem já conhece a API de persistência relacional dentro do mundo Java.
+With the infrastructure part ready within the project, the next step is modeling. Every annotation of the model is using the annotations of JPA, which reduces the learning curve for a developer who already knows the API of relational persistence within the Java world.
 
 
 ```java
-@Entity(name = "book")
+@Entity (name = "book")
 @Indexed
-@Analyzer(impl = StandardAnalyzer.class)
+@Analyzer (impl = StandardAnalyzer.class)
 public class Book {
 
     @Id
     @DocumentId
     private Long isbn;
-
+    
     @Column
-    @Field(analyze = Analyze.NO)
+    @Field (analyze = Analyze.NO)
     private String name;
-
+    
     @Column
     @Field
     private String author;
-
+    
     @Column
     @Field
     private String category;
 
-   //getter and setter
+   // getter and setter
 }
 
 ```
 
-Para atender ao requisito de buscar tanto pela chave quanto pela categoria, utilizaremos o recurso de motor de busca com o Apache Lucene através do Hibernate Search. Esse recurso é realmente muito interessante, principalmente, para permitir a busca de campos que não sejam a chave. Porém, isso incrementa a dificuldade do projeto, uma vez que existirá o desafio para sincronizar as informações dentro do banco de dados e do motor de busca.
-
+To meet the requirement to search for both the key and the category, we will use the search engine feature with Apache Lucene through Hibernate Search. This feature is really interesting, mainly, to allow the search of fields that are not the key. However, this increases the difficulty of the project, since there will be a challenge to synchronize the information within the database and the search engine.
 
 ```java
 public class App {
-
-
-    public static void main(String[] args) {
-        EntityManagerFactory managerFactory = Persistence.createEntityManagerFactory("hibernate");
-        EntityManager manager = managerFactory.createEntityManager();
-        manager.getTransaction().begin();
-
-        Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin");
-        Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin");
-        Book agile = getBook(3L, "Agile Principles, Patterns, and Practices in C#", "Robert Cecil Martin");
-        Book effectiveJava = getBook(4L, "Effective Java", "Joshua Bloch");
-        Book javaConcurrency = getBook(5L, "Java Concurrency", "Robert Cecil Martin");
-
-        manager.merge(cleanCode);
-        manager.merge(cleanArchitecture);
-        manager.merge(agile);
-        manager.merge(effectiveJava);
-        manager.merge(javaConcurrency);
-        manager.getTransaction().commit();
-
-        Book book = manager.find(Book.class, 1L);
-        System.out.println("book: " + book);
-        managerFactory.close();
+    public static void main (String [] args) {
+        EntityManagerFactory managerFactory = Persistence.createEntityManagerFactory ("hibernate");
+        EntityManager manager = managerFactory.createEntityManager ();
+        manager.getTransaction (). begin ();
+    
+        Book cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin");
+        Book cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin");
+        Book agile = getBook (3L, "Agile Principles, Patterns, and Practices in C #", "Robert Cecil Martin");
+        Book effectiveJava = getBook (4L, "Effective Java", "Joshua Bloch");
+        Book javaConcurrency = getBook (5L, "Java Concurrency", "Robert Cecil Martin");
+    
+        manager.merge (cleanCode);
+        manager.merge (cleanArchitecture);
+        manager.merge (agile);
+        manager.merge (effectiveJava);
+        manager.merge (javaConcurrency);
+        manager.getTransaction (). commit ();
+    
+        Book book = manager.find (Book.class, 1L);
+        System.out.println ("book:" + book);
+        managerFactory.close ();
     }
-
-
-    private static Book getBook(long isbn, String name, String author) {
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setName(name);
-        book.setAuthor(author);
+    private static Book getBook (long isbn, String name, String author) {
+        Book book = new Book ();
+        book.setIsbn (isbn);
+        book.setName (name);
+        book.setAuthor (author);
         return book;
     }
 
 }
 ```
 
-Como esperado, toda operação acontece pelo `EntityManager`. A informação só vai definitivamente para o banco de dados quando se realiza o commit da transação. Como? O ponto é que, mesmo o Cassandra não tendo transação de maneira nativa no banco de dados, o Hibernate acaba simulando esse comportamento, que pode ser perigoso, principalmente, em ambientes distribuídos. 
 
-O recurso de JPQL, Java Persistence Query Language, é uma query de consulta criada para o JPA e também está disponível dentro do Hibernate OGM, tudo isso graças ao Hibernate Search, que permite a busca por campos além da partition key. Existe a contrapartida: esse campo não poderá será analisado dentro da busca, ou seja, dentro da anotação `Field` o atributo `analizy` precisará ser definido como `Analyze.NO` (verifique como o campo `name` foi anotado dentro da classe).
+
+
+As expected, every operation takes place through the `EntityManager`. The information definitely only goes to the database when the transaction is committed. Like? The point is that, even though Cassandra does not have a native transaction in the database, Hibernate ends up simulating this behavior that can be dangerous, especially in distributed environments.
+
+The JPQL feature, Java Persistence Query Language, is a query query created for JPA and is also available within Hibernate OGM, all thanks to Hibernate Search, which allows you to search for fields in addition to the partition key. There is a counterpart: this field cannot be analyzed within the search, that is, within the annotation `Field` the attribute` analizy` will need to be defined as `Analyze.NO` (check how the field` name` was noted within the class ).
 
 
 ```java
 public class App2 {
 
 
-    public static void main(String[] args) {
-        EntityManagerFactory managerFactory = Persistence.createEntityManagerFactory("hibernate");
-        EntityManager manager = managerFactory.createEntityManager();
-        manager.getTransaction().begin();
+    public static void main (String [] args) {
+        EntityManagerFactory managerFactory = Persistence.createEntityManagerFactory ("hibernate");
+        EntityManager manager = managerFactory.createEntityManager ();
+        manager.getTransaction (). begin ();
         String name = "Clean Code";
-        Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin");
-        Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin");
-        Book agile = getBook(3L, "Agile Principles, Patterns, and Practices in C#", "Robert Cecil Martin");
-        Book effectiveJava = getBook(4L, "Effective Java", "Joshua Bloch");
-        Book javaConcurrency = getBook(5L, "Java Concurrency", "Robert Cecil Martin");
-
-        manager.merge(cleanCode);
-        manager.merge(cleanArchitecture);
-        manager.merge(agile);
-        manager.merge(effectiveJava);
-        manager.merge(javaConcurrency);
-        manager.getTransaction().commit();
-
-        Query query = manager.createQuery("select b from book b where name = :name");
-        query.setParameter("name", name);
-        List<Book> books = query.getResultList();
-        System.out.println("books: " + books);
-        managerFactory.close();
+        Book cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin");
+        Book cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin");
+        Book agile = getBook (3L, "Agile Principles, Patterns, and Practices in C #", "Robert Cecil Martin");
+        Book effectiveJava = getBook (4L, "Effective Java", "Joshua Bloch");
+        Book javaConcurrency = getBook (5L, "Java Concurrency", "Robert Cecil Martin");
+    
+        manager.merge (cleanCode);
+        manager.merge (cleanArchitecture);
+        manager.merge (agile);
+        manager.merge (effectiveJava);
+        manager.merge (javaConcurrency);
+        manager.getTransaction (). commit ();
+    
+        Query query = manager.createQuery ("select b from book b where name =: name");
+        query.setParameter ("name", name);
+        List <Book> books = query.getResultList ();
+        System.out.println ("books:" + books);
+        managerFactory.close ();
     }
 
 
-    private static Book getBook(long isbn, String name, String author) {
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setName(name);
-        book.setAuthor(author);
+    private static Book getBook (long isbn, String name, String author) {
+        Book book = new Book ();
+        book.setIsbn (isbn);
+        book.setName (name);
+        book.setAuthor (author);
         return book;
     }
 
 }
 ```
 
-Com o motor de busca ativado no projeto, é possível realizar pesquisas utilizando todos os recursos do Lucene. Por exemplo, realizar busca do tipo `term`, que procura uma palavra dentro do texto, além de definir analisadores, tokens etc. Como mostra o código a seguir, o `FullTextEntityManager` é uma especialização do `EntityManager` com recursos do motor de busca. Isso faz com que a busca seja possível para campos que não sejam ID, além de oferecer recursos bem poderosos.
+With the search engine activated in the project, it is possible to carry out searches using all Lucene resources. For example, perform a `term` search, which searches for a word within the text, in addition to defining analyzers, tokens, etc. As the code below shows, `FullTextEntityManager` is a` EntityManager` specialization with search engine capabilities. This makes the search possible for non-ID fields that are searchable, in addition to offering very powerful resources.
 
 ```java
 
 public class App3 {
 
 
-    public static void main(String[] args) {
-        EntityManagerFactory managerFactory = Persistence.createEntityManagerFactory("hibernate");
-        EntityManager manager = managerFactory.createEntityManager();
-        manager.getTransaction().begin();
-        manager.merge(getBook(1L, "Clean Code", "Robert Cecil Martin"));
-        manager.merge(getBook(2L, "Clean Architecture", "Robert Cecil Martin"));
-        manager.merge(getBook(3L, "Agile Principles, Patterns, and Practices in C#", "Robert Cecil Martin"));
-        manager.merge(getBook(4L, "Effective Java", "Joshua Bloch"));
-        manager.merge(getBook(5L, "Java Concurrency", "Robert Cecil Martin"));
-        manager.getTransaction().commit();
-        FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(manager);
-
-        QueryBuilder qb = fullTextEntityManager.getSearchFactory()
-                .buildQueryBuilder().forEntity(Book.class).get();
+    public static void main (String [] args) {
+        EntityManagerFactory managerFactory = Persistence.createEntityManagerFactory ("hibernate");
+        EntityManager manager = managerFactory.createEntityManager ();
+        manager.getTransaction (). begin ();
+        manager.merge (getBook (1L, "Clean Code", "Robert Cecil Martin"));
+        manager.merge (getBook (2L, "Clean Architecture", "Robert Cecil Martin"));
+        manager.merge (getBook (3L, "Agile Principles, Patterns, and Practices in C #", "Robert Cecil Martin"));
+        manager.merge (getBook (4L, "Effective Java", "Joshua Bloch"));
+        manager.merge (getBook (5L, "Java Concurrency", "Robert Cecil Martin"));
+        manager.getTransaction (). commit ();
+        FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager (manager);
+    
+        QueryBuilder qb = fullTextEntityManager.getSearchFactory ()
+                .buildQueryBuilder (). forEntity (Book.class) .get ();
         org.apache.lucene.search.Query query = qb
-                .keyword()
-                .onFields("name", "author")
-                .matching("Robert")
-                .createQuery();
-
-        Query persistenceQuery =  fullTextEntityManager.createFullTextQuery(query, Book.class);
-        List<Book> result = persistenceQuery.getResultList();
-        System.out.println(result);
-
-        manager.close();
+                .keyword ()
+                .onFields ("name", "author")
+                .matching ("Robert")
+                .createQuery ();
+    
+        Query persistenceQuery = fullTextEntityManager.createFullTextQuery (query, Book.class);
+        List <Book> result = persistenceQuery.getResultList ();
+        System.out.println (result);
+    
+        manager.close ();
     }
 
 
-    private static Book getBook(long isbn, String name, String author) {
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setName(name);
-        book.setAuthor(author);
+    private static Book getBook (long isbn, String name, String author) {
+        Book book = new Book ();
+        book.setIsbn (isbn);
+        book.setName (name);
+        book.setAuthor (author);
         return book;
     }
 
 }
 ```
 
-Ainda resta um desafio: uma vez que não conseguimos representar um Set de UDT dentro do JPA, como faremos a busca pela categoria? A resposta surge utilizando os recursos do Hibernate Search. O que faremos é adicionar um novo campo, o `category`. Esse campo será uma `String` e conterá as categorias separadas por vírgula. Depois, todo o trabalho será realizado pelo motor de busca. Com isso, será necessário realizar uma mudança dentro da família de coluna para adicionar o novo campo.
+There is still a challenge: since we were unable to represent a UDT Set within JPA, how do we search for the category? The answer comes using the features of Hibernate Search. What we will do is add a new field, the `category`. This field will be a `String` and will contain the categories separated by commas. Then, all the work will be done by the search engine. With that, it will be necessary to make a change within the column family to add the new field.
 
 ```sql
 ALTER COLUMNFAMILY library.book ADD category text;
 ```
 
-Com o campo criado, basta alimentar o campo, que o Hibernate Search integrado com o OGM Cassandra se encarregará de fazer o trabalho pesado da indexação do campo e tratá-lo em conjunto com o Apache Lucene.
+With the field created, just feed the field, and Hibernate Search integrated with the GMO Cassandra will take care of the heavy work of indexing the field and treating it together with Apache Lucene.
 
 
 ```java
 public class App4 {
 
 
-    public static void main(String[] args) {
-        EntityManagerFactory managerFactory = Persistence.createEntityManagerFactory("hibernate");
-        EntityManager manager = managerFactory.createEntityManager();
-        manager.getTransaction().begin();
-        manager.merge(getBook(1L, "Clean Code", "Robert Cecil Martin", "Java,OO"));
-        manager.merge(getBook(2L, "Clean Architecture", "Robert Cecil Martin", "Good practice"));
-        manager.merge(getBook(3L, "Agile Principles, Patterns, and Practices in C#", "Robert Cecil Martin", "Good practice"));
-        manager.merge(getBook(4L, "Effective Java", "Joshua Bloch", "Java, Good practice"));
-        manager.merge(getBook(5L, "Java Concurrency", "Robert Cecil Martin", "Java,OO"));
-        manager.merge(getBook(6L, "Nosql Distilled", "Martin Fowler", "Java,OO"));
-        manager.getTransaction().commit();
-
-        FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(manager);
-
-        QueryBuilder builder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Book.class).get();
-        org.apache.lucene.search.Query luceneQuery = builder.keyword().onFields("category").matching("Java").createQuery();
-
-        Query query = fullTextEntityManager.createFullTextQuery(luceneQuery, Book.class);
-        List<Book> result = query.getResultList();
-        System.out.println(result);
-        managerFactory.close();
-
+    public static void main (String [] args) {
+        EntityManagerFactory managerFactory = Persistence.createEntityManagerFactory ("hibernate");
+        EntityManager manager = managerFactory.createEntityManager ();
+        manager.getTransaction (). begin ();
+        manager.merge (getBook (1L, "Clean Code", "Robert Cecil Martin", "Java, OO"));
+        manager.merge (getBook (2L, "Clean Architecture", "Robert Cecil Martin", "Good practice"));
+        manager.merge (getBook (3L, "Agile Principles, Patterns, and Practices in C #", "Robert Cecil Martin", "Good practice"));
+        manager.merge (getBook (4L, "Effective Java", "Joshua Bloch", "Java, Good practice"));
+        manager.merge (getBook (5L, "Java Concurrency", "Robert Cecil Martin", "Java, OO"));
+        manager.merge (getBook (6L, "Nosql Distilled", "Martin Fowler", "Java, OO"));
+        manager.getTransaction (). commit ();
+    
+        FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager (manager);
+    
+        QueryBuilder builder = fullTextEntityManager.getSearchFactory (). BuildQueryBuilder (). ForEntity (Book.class) .get ();
+        org.apache.lucene.search.Query luceneQuery = builder.keyword (). onFields ("category"). matching ("Java"). createQuery ();
+    
+        Query query = fullTextEntityManager.createFullTextQuery (luceneQuery, Book.class);
+        List <Book> result = query.getResultList ();
+        System.out.println (result);
+        managerFactory.close ();
+    
     }
 
 
-    private static Book getBook(long isbn, String name, String author, String category) {
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setName(name);
-        book.setAuthor(author);
-        book.setCategory(category);
+    private static Book getBook (long isbn, String name, String author, String category) {
+        Book book = new Book ();
+        book.setIsbn (isbn);
+        book.setName (name);
+        book.setAuthor (author);
+        book.setCategory (category);
         return book;
     }
 
 }
 ```
 
-### Conclusão
+### Conclusion
 
-Utilizar uma API que o desenvolvedor já conhece para navegar em um novo paradigma no mundo da persistência é uma grande estratégia da qual o Hibernate tira o proveito. Neste capítulo vimos como utilizar a API JPA para trabalhar com o Apache Cassandra, o que diminui e muito a curva de aprendizagem para quem é experiente em Java. Porém, essa facilidade cobra o seu preço, uma vez que o JPA foi feito para o banco de dados relacional. Existem diversas lacunas que API tende a não cobrir no mundo NoSQL, por exemplo, operações de maneira assíncrona, assim como definições de nível de consistência existente no Cassandra. No próximo capítulo veremos também uma especificação do mundo Java, porém, uma API criada especificamente para a o mundo não relacional.
+Using an API that the developer already knows to navigate a new paradigm in the world of persistence is a great strategy that Hibernate takes advantage of. In this chapter we saw how to use the JPA API to work with Apache Cassandra, which greatly reduces the learning curve for an experienced Java developer. However, this facility takes its toll, since the JPA was made for the relational database. There are several gaps that API tends to not cover in the NoSQL world, for example, asynchronous operations as well as definitions of the existing consistency level in Cassandra. In the next chapter we will also see a specification of the Java world, however, an API created specifically for the non-relational world.
