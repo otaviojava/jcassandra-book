@@ -24,3 +24,11 @@ To access the source code of the book: https://github.com/otaviojava/cassandra-j
 ## Target audience / prerequisites
 
 Java developers, enthusiastic and familiar with NoSQL technology and who want to learn or deepen their knowledge in Cassandra.
+
+
+
+## About the author
+
+ 
+
+Otávio Santana is a passionate software engineer with a focus on Java technology. He has experience in multilingual persistence and high performance applications in areas such as finance, social networks and e-commerce. He works on several Java specifications as part of the expert group or as a specification leader and is an executive member of the Java Community Process. He works on several open source projects from both the Apache and the Eclipse Foundation such as Apache Tamaya, Eclipse JNoSQL, Eclipse MicroProfile Jakarta EE. In addition to being a present member of the community helping the JUG and in several conferences around the world such as JavaOne, OracleCode, Devoxx, Qcon among others. Due to his efforts for the community and for open source, he received several recognition awards such as JCP Outstanding Award, Member of the year and innovative JSR, Duke’s Choice Award, Java Champion, Oracle GroundBreaker, among others.
