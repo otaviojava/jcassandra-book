@@ -1,30 +1,26 @@
-# A nova era das aplicações vem com novos bancos de dados
+# The new era of applications comes with new databases
 
 
-O mundo dos negócios cresce de maneira exponencial com várias oportunidades e empresas concorrendo entre si. A disputa entre clientes é algo que não se define mais pela localização da empresa, mas pela usualidade e, sobretudo, o tempo de resposta. Existem diversos estudos que explicam que melhorias de milissegundos são o suficiente para adquirir novos clientes, fidelizar os já existentes, além de desbancar a concorrência. 
+The business world grows exponentially with several opportunities and companies competing with each other. The dispute between customers is something that is no longer defined by the location of the company, but by the usual and especially the response time. There are several studies that explain that millisecond improvements are enough to acquire new customers, retain existing ones in addition to overcoming competition.
 
-Nessa batalha pelos milissegundos, nasceram diversos paradigmas e frameworks, porém, toda essa melhoria seria inútil se a persistência da informação continuasse lenta. Com a necessidade de uma melhor performance, surgiram os bancos de dados NoSQL para facilitar o desempenho e a distribuição da informação. 
+In this battle for milliseconds, several paradigms and frameworks were born, however, all this improvement would be useless if the persistence of information remained slow.
 
-Junto a esse conceito, nasceu o Apache Cassandra, o banco de dados NoSQL elástico, tolerante a falhas e com um alto grau de performance, tendo cases de sucessos nas maiores empresas do mundo, como o Netflix, GitHub, eBay, dentre outros. O Cassandra é um banco de dados não relacional originado pelo Facebook, e hoje é um banco de dados NoSQL do tipo família de coluna open source dentro da Apache Foundation.
+With the need for better performance, NoSQL databases emerged, to facilitate performance and information distribution. Along with this concept, Apache Cassandra was born, the elastic NoSQL database, fault tolerant and with a high degree of performance, having success cases in the largest companies in the world such as Netflix, GitHub, eBay among others. Cassandra is a non-relational database originated by Facebook, and today it is an open source column family type NoSQL database within the Apache Foundation.
 
-De uma maneira geral, o objetivo do livro é abordar o Cassandra, seus conceitos e sua aplicabilidade com o Java. Para cobrir todos esses conceitos, o livro foi desenhado no total de dez capítulos.
+In general, the objective of the book is to address Cassandra, its concepts and its applicability with Java. To cover all of these concepts, the book was designed in a total of nine chapters.
 
-O escopo do inicial é a introdução dos bancos de dados não relacionais. Serão abordados os desafios dos bancos de dados distribuídos, suas limitações com o teorema do CAP, o que é NoSQL e seus tipos, além da comparação entre o NoSQL e o já consolidado banco de dados relacional.
+The scope of the first chapter is the introduction of non-relational databases. The challenges of distributed databases, their limitations with the CAP theorem, which is NoSQL and its types, as well as the comparison between NoSQL and the already consolidated relational database will be addressed.
 
-Em seguida, abordaremos os conceitos do Cassandra, como a sua hierarquia, leitura e escrita, seu funcionamento no nó e sua orquestração dentro de um Cluster. Veremos sua instalação manual, Docker e Cluster com `docker-compose`.
+In the second chapter, we will cover Cassandra's concepts, such as its hierarchy, reading and writing, its functioning in the node and its orchestration within a Cluster. We will see your manual installation, Docker and Cluster with `docker-compose`.
 
-A realização de consultas é muito comum dentro de um banco de dados. No mundo relacional o desenvolvedor está familiarizado com o SQL. O Cassandra tem a sua própria linguagem de consulta: o Cassandra Query Language ou CQL. Você vai aprender como criar keyspace, família de coluna, realizar as operações CRUD (criação, recuperação, atualização e deleção dos dados) que os desenvolvedores tanto amam.
+The realization of queries is very common within a database, in the relational world the developer is familiar with SQL. Cassandra has its own query language: Cassandra Query Language or CQL one of its biggest differentials is the similarity between SQL, not only in name, learn how to create keyspace, column family, perform CRUD operations (Creation, recovery , updating and deleting data) that the developer loves so much are the topics in this chapter.
 
-Existem diversas similaridades entre a linguagem da comunicação do Cassandra, o CQL, e o SQL. Vale lembrar que conceitualmente o banco relacional e o Cassandra estão em diferentes espectros, levando em consideração o teorema do CAP. Realizar a modelagem do Cassandra da mesma maneira que se realiza dentro do banco relacional terá um alto impacto de performance.
+There are several similarities between Cassandra's communication language, CQL, and SQL. However, their similarities end there. It is worth remembering that conceptually the relational bank and Cassandra are in different aspects, taking into account the CAP theorem. Thus, performing the modeling of Cassandra in the same way that it takes place within the relational bank will have a high performance impact, not to mention that an airplane will be used as the car. The topics of this session are the explanation and tips to perform the modeling inside Cassandra and some simple principles for a daily modeling.
 
-Após todos os conceitos de comunicação do Cassandra e dicas de modelagem, o próximo passo é a integração com o Java. Dentro disso, o primeiro ponto a ser exibido é o Driver do DataStax, cuja API é similar ao driver JDBC. Um ponto importante é que uma vez o desenvolvedor tenha familiaridade com o CQL toda a comunicação acontece de maneira bastante fluida. 
+After all Cassandra's communication concepts, communication and modeling tips, the next step is integration with Java. Within this communication between Java and Cassandra, the first point to be displayed is to perform it with the DataStax Driver whose API is similar to the JDBC driver. An important point within the DataStax Driver is that once the developer is familiar with CQL, all communication takes place in a very fluid way, however, on a daily basis, business behaves object-oriented, so that it will also be explained the impacts of Mappers, frameworks whose objective is to carry out the mapping between Cassandra and the objects of a business entity, positively as productivity and negatively with possible performance problems. Among these mappers we will use DataStax Mapper, Spring Data Cassandra, Hibernate OGM Cassandra and Eclipse JNoSQL and to facilitate the comparison between them, the same example will be used, which is based on a solution for a library.
 
-No dia a dia, os negócios se comportam com orientação a objetos, de modo que também é importante que nos debrucemos sobre os impactos dos Mappers, frameworks cujo objetivo é realizar o mapeamento entre o Cassandra e os objetos de uma entidade de negócio, seja de maneira positiva, com a produtividade, ou de maneira negativa, com possíveis problemas de performance. Dentre esses Mappers utilizaremos o DataStax Mapper, Spring Data Cassandra, Hibernate OGM Cassandra e o Eclipse JNoSQL. E para facilitar a comparação entre eles será utilizado o mesmo exemplo que se baseia em uma solução para uma biblioteca.
+To access the source code of the book: https://github.com/otaviojava/cassandra-java-code
 
-Para acessar o código-fonte do livro: 
+## Target audience / prerequisites
 
-https://github.com/otaviojava/cassandra-java-code
-
-## Público-alvo/pré-requisitos
-
-Desenvolvedores Java, entusiastas e familiarizados com a tecnologia NoSQL e que desejam aprender ou aprofundar os conhecimentos no Cassandra.
+Java developers, enthusiastic and familiar with NoSQL technology and who want to learn or deepen their knowledge in Cassandra.
