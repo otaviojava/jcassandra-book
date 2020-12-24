@@ -59,7 +59,7 @@ A major advantage of using construction technologies is that we don't have to wo
 </dependency>
 ```
 
-It is possible to notice that in this small test it was necessary to add a method that raises an embedded instance of Cassndra and another that cleans.
+It is possible to notice that in this small test it was necessary to add a method that raises an embedded instance of Cassandra and another that cleans.
 
 ```java
 public class SampleCassandraTest {
