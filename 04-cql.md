@@ -1,14 +1,14 @@
 # Knowing the CQL
 
 Communication with the database is certainly the most trivial thing in a database.
-Cassandra offers its own language for communicating with the database, _Cassandra Query language_ or CQL. CQL has a syntax close to SQL, however, in a simpler way since there are no concepts like _joins_ (_inner join_, _left join_, among others) within Cassandra's searches. A developer who already knows SQL will have a much smaller learning curve to learn this Cassandra language.
+Cassandra offers its language for communicating with the database, *Cassandra Query language,* or CQL. CQL has a syntax close to SQL, however, in a simpler way since there are no concepts like *joins* (*inner join*, *left join*, among others) within Cassandra's searches. A developer who already knows SQL will have a much smaller learning curve to learn this Cassandra language.
 This chapter will aim to talk a little about this language.
 
-> For these operations we will use the client `cqlsh` that we saw in the previous chapter.
+> For these operations, we will use the client cqlsh that we saw in the previous chapter.
 
 ## Keyspace
 
-Our first stop at CQL is the creation of the largest structure within Cassandra's hierarchy, _keyspace_. It is during the creation of the keyspace that the replication strategy and the replication factor for the data are defined. The creation template is shown below:
+Our first stop at CQL is the creation of the largest structure within Cassandra's hierarchy, *keyspace*. It is during the creation of the keyspace that the replication strategy and the replication factor for the data are defined. The creation template is shown below:
 
 ```sql
 create_keyspace_statement :: = CREATE KEYSPACE [IF NOT EXISTS] keyspace_name WITH options
@@ -25,7 +25,7 @@ CREATE KEYSPACE library
 ```
 
 
-Once created, it is possible to check the keyspaces created in Cassandra and for that the first query will be performed. It is possible to see the similarity with the relational database. We will talk more about seeking information in the following items.
+Once created, it is possible to check the keyspaces created in Cassandra and for that, the first query will be performed. It is possible to see the similarity with the relational database. We will talk more about seeking information on the following items.
 
 
 ```sql
@@ -38,7 +38,7 @@ cqlsh> select * from system_schema.keyspaces where keyspace_name = 'library';
 (1 rows)
 ```
 
-To make any changes to the keyspace created, it is necessary to use the * alter keyspace *. The template is shown below:
+To make any changes to the keyspace created, it is necessary to use the **alter keyspace**. The template is shown below:
 
 ```sql
 alter_keyspace_statement :: = ALTER KEYSPACE keyspace_name WITH options
@@ -51,13 +51,13 @@ For example, changing the keyspace created earlier:
 ALTER KEYSPACE Excelsior WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 4};
 ```
 
-It is also possible to remove the keyspace with the * drop keyspace *, in our example:
+It is also possible to remove the keyspace with the **drop keyspace**, in our example:
 
 ```sql
 DROP KEYSPACE library;
 ```
 
-If the user tries to create or remove the same table more than once, an error message is generated. For example, `Keyspace 'library' already exists` or` ConfigurationException: Cannot drop non existing keyspace 'library'.` to create or remove respectively. One way to avoid such an error is to make this change only if it really makes sense: just create it if it doesn't exist or only remove it if it exists. For this purpose, the syntax supports this condition:
+If the user tries to create or remove the same table more than once, an error message is generated. For example, `Keyspace 'library' already exists or ConfigurationException: Cannot drop non-existing keyspace 'library'`. to create or remove respectively. One way to avoid such an error is to make this change only if it makes sense: just create it if it doesn't exist or only remove it if it exists. For this purpose, the syntax supports this condition:
 
 
 ```sql
@@ -67,7 +67,7 @@ CREATE KEYSPACE IF NOT EXISTS library WITH replication = {'class': 'SimpleStrate
 
 ## Speaker family
 
-The creation of the column family is similar to the creation of the table, that is, it is where the fields are defined, _partition key_, _clustering key_, the index, and more settings. Just use the `CREATE TABLE` template:
+The creation of the column family is similar to the creation of the table, that is, it is where the fields are defined, *partition key*, *clustering key*, the index, and more settings. Just use the `CREATE TABLE` template:
 
 ```sql
 create_table_statement :: = CREATE TABLE [IF NOT EXISTS] table_name
@@ -87,7 +87,7 @@ table_options :: = COMPACT STORAGE [AND table_options]
 clustering_order :: = column_name (ASC | DESC) (',' column_name (ASC | DESC)) *
 ```
 
-Since the keyspace `library` was created, the next step is to create the book column family,` book`:
+Since the keyspace `library` was created, the next step is to create the book column `family, book`:
 
 
 ```sql
@@ -174,11 +174,11 @@ cqlsh> SELECT * FROM library.book;
 
 ```
 
-> You can also use `COLUMNFAMILY` instead of` TABLE`
+> You can also use `COLUMNFAMILY` instead of `TABLE`
 
 ### Primary key
 
-Within the column family, the primary key (_primary key_) is the single field and all column families * must * define it. It is from this field that the data will be recovered, so there is an initial concern with it. The primary key can consist of more than one field, however, it will have a different concept than the relational bank. It will be divided into two parts:
+Within the column family, the primary key (*primary key*) is the single field and all column families **must** define it. It is from this field that the data will be recovered, so there is an initial concern with it. The primary key can consist of more than one field, however, it will have a different concept than the relational bank. It will be divided into two parts:
 
 * The **partition key**: it is the first part of the primary key that is responsible for the distribution of data through the nodes.
 
@@ -261,7 +261,7 @@ cqlsh> SELECT * FROM library.author WHERE book = 'Clean Architecture';
 InvalidRequest: Error from server: code = 2200 [Invalid query] message = "Cannot execute this query as it might involve data filtering and thus may have unpredictable performance. If you want to execute this query despite the unpredictability performance, use ALLOW FILTERING"
 ```
 
-As the error message shows, the only way to execute the query is to add the command `ALLOW FILTERING`, however, this will have serious performance consequences. The way Cassandra executes this command is to retrieve all the lines and then filter for those that do not have the condition value. For example, in a family of columns that has a million rows and 98% of them have the query condition, this will be relatively efficient. However, imagine the case where only one line meets the condition. Cassandra will have traversed 999999 elements in a linear and inefficient way to just return one.
+As the error message shows, the only way to execute the query is to add the command `ALLOW FILTERING`, however, this will have serious performance consequences. The way Cassandra executes this command is to retrieve all the lines and then filter for those that do not have the condition value. For example, in a family of columns that has a million rows and 98% of them have the query condition, this will be relatively efficient. However, imagine the case where only one line meets the condition. Cassandra will have traversed 999999 elements linearly and inefficiently to just return one.
 
 
 ```sql
@@ -279,13 +279,13 @@ name | book | year
 (1 rows)
 ```
 
-> If a query is rejected by Cassandra asking for the filter, resist the use of `ALLOW FILTERING`. Check your modeling, your data and volumetry and check what you really want to do.
+> If a query is rejected by Cassandra asking for the filter, resist the use of `ALLOW FILTERING`. Check your modeling, your data, and volumetry, and check what you want to do.
 > A second option is the use of secondary indexes, which will be discussed below.
 
 
 ### Static types
 
-Some columns can be considered static within the column family. A static column shares the same value for all rows that have the same partition key value. For example, in the author column family scenario (with name and book), imagine that there is now a desire to add the field for country of residence. Once the author changes countries, it is important that all references are updated as well, thus creating the country field, `country`, as static, shown below:
+Some columns can be considered static within the column family. A static column shares the same value for all rows that have the same partition key value. For example, in the author column family scenario (with name and book), imagine that there is now a desire to add the field for “country of residence”. Once the author changes countries, all references must be updated as well, thus creating the country field, `country`, as static, shown below:
 
 
 Creating the `author` structure now with the static country field:
@@ -330,7 +330,7 @@ There is another option to search the table information in addition to the prima
 index_name :: = re ('[a-zA-Z_0-9] +')
 ```
 
-For example, to perform a search for the year field, `year`, in the column family of authors it is possible to execute the following command:
+For example, to perform a search for the year field, year, in the column family of authors it is possible to execute the following command:
 
 ```sql
 CREATE INDEX year_index ON library.author (year);
@@ -365,9 +365,9 @@ DROP INDEX IF EXISTS library.year_index;
 
 Secondary indexes are created for a column within a column family and are stored locally for each node.
 
-If a query is based on a secondary index, it will not have the same efficiency as the search for the key and can strongly impact performance. This is one of the reasons why some documentation from Cassandra considers the use of secondary index as anti-pattern, so it is important to analyze the impact of creating a secondary index.
+If a query is based on a secondary index, it will not have the same efficiency as the search for the key and can strongly impact performance. This is one of the reasons why some documentation from Cassandra considers the use of secondary index as an anti-pattern, so it is important to analyze the impact of creating a secondary index.
 
-> An efficient way to use the secondary index is in partnership with the primary key, `partition key`, so it will be addressed over a range of specific nodes.
+> An efficient way to use the secondary index is in partnership with the primary key, partition key, so it will be addressed over a range of specific nodes.
 
 There are some good practices when using indexes, which are:
 
@@ -377,7 +377,7 @@ There are some good practices when using indexes, which are:
 
 ## Types in Cassandra
 
-Within a family of columns each field has a type that defines how the field will be stored in the database. To facilitate understanding, they will be divided into four:
+Within a family of columns, each field has a type that defines how the field will be stored in the database. To facilitate understanding, they will be divided into four:
 
 * Native types
 * Collection types
@@ -416,7 +416,7 @@ The native types are those that Cassandra already supports and it is not necessa
 ### Collection types
 
 
-Within Cassandra there is support for three types of collections that follow the same line of the Java world. These collections fit perfectly when it is necessary to have a field that has a set of items, for example, the telephone or contact list.
+Within Cassandra, there is support for three types of collections that follow the same line of the Java world. These collections fit perfectly when it is necessary to have a field that has a set of items, for example, the telephone or contact list.
 
 ```sql
 collection_type :: = MAP '<' cql_type ',' cql_type '>'
@@ -427,7 +427,7 @@ collection_type :: = MAP '<' cql_type ',' cql_type '>'
 ### List
 
 
-It is a sequence of items in the order they were added. For example, given a column family of readers it is possible to have a list of books. Like this:
+It is a sequence of items in the order they were added. For example, given a column family of readers, it is possible to have a list of books. Like this:
 
 Creation of the column reader family
 ```sql
@@ -478,7 +478,7 @@ cqlsh> SELECT * FROM library.reader where name = 'David';
 
 ```
 
-It is also possible to remove elements with `DELETE` and` UPDATE`.
+It is also possible to remove elements with `DELETE` and `UPDATE`.
 
 ```sql
 DELETE books [1] FROM library.reader where name = 'David';
@@ -546,7 +546,7 @@ cqlsh> SELECT * FROM library.reader where name = 'David';
 
 ```
 
-> As a recommendation, the `List` type has some limitations and performance problems compared to the` Set`. If you have a choice, always prioritize the `Set`.
+> As a recommendation, the `List` type has some limitations and performance problems compared to the `Set`. If you have a choice, always prioritize the `Set`.
 
 
 ### Map
@@ -623,7 +623,7 @@ tuple_type :: = TUPLE '<' cql_type (',' cql_type) * '>'
 tuple_literal :: = '(' term (',' term) * ')'
 ```
 
-For this example, we will use the same column family of readers, however, we will assume that only a single contact information, regardless of which one, is sufficient. Like this:
+For this example, we will use the same column family of readers, however, we will assume that only a single piece of contact information, regardless of which one, is sufficient. Like this:
 
 ```sql
 DROP TABLE IF EXISTS library.reader;
@@ -648,7 +648,7 @@ cqlsh> SELECT * FROM library.reader;
 
 ### User-Defined Types
 
-User-Defined Types, or just UDT, is a data type created by the user. This type is created from a keyspace and follows the same principle as a column family, that is, it will be possible to create, change and drop a UDT.
+User-Defined Types, or just UDT, is a data type created by the user. This type is created from a keyspace and follows the same principle as a column family, that is, it will be possible to create, change, and drop a `UDT`.
 
 ```sql
 create_type_statement :: = CREATE TYPE [IF NOT EXISTS] udt_name
@@ -700,7 +700,7 @@ cqlsh> SELECT * FROM library.user;
  otaviojava | {first_name: 'Otavio', last_name: 'Santana', middle_name: 'Gonçalves'}
 ```
 
-It is also possible to remove and remove the UDT as `DROP UDT`.
+It is also possible to remove the UDT as `DROP UDT`.
 
 ```sql
 drop_type_statement :: = DROP TYPE [IF EXISTS] udt_name
@@ -719,7 +719,7 @@ cqlsh> SELECT * FROM library.user;
 DROP TYPE IF EXISTS library.name;
 ```
 
-Cassandra's collections also support UDTs, for this it is necessary to use the keyword `frozen`. It is worth noting that the UDT has a similar operation to that of a tuple, that is, it is not possible to change a single element.
+Cassandra's collections also support UDTs, for this, it is necessary to use the keyword frozen. It is worth noting that the UDT has a similar operation to that of a tuple, that is, it is not possible to change a single element.
 
 ```sql
 DROP TABLE IF EXISTS library.user;
@@ -784,7 +784,7 @@ INSERT INTO library.magazine (id, posted_at, articles, pages) values ('Java Maga
 INSERT INTO library.magazine (id, posted_at, articles, pages) values ('Java Magazine', '2017-01-01', {'Java EE 8', 'Java 7', 'NoSQL'}, 100);
 ```
 
-Within a query it is possible to retrieve both all fields and specific columns using the same SQL language standard.
+Within a query, it is possible to retrieve both all fields and specific columns using the same SQL language standard.
 
 ```sql
 cqlsh> SELECT * FROM library.magazine;
@@ -810,7 +810,7 @@ cqlsh> SELECT count (*) FROM library.magazine;
 
 ```
 
-Within Cassandra there are also some value aggregation queries, with the keyword `GROUP BY`, however, to use this feature it is necessary that the target field is a primary key.
+Within Cassandra, there are also some value aggregation queries, with the keyword `GROUP BY`, however, to use this feature, the target field must be a primary key.
 
 ```sql
 cqlsh> SELECT id, max (pages) FROM library.magazine GROUP BY id;
@@ -835,7 +835,7 @@ cqlsh> SELECT id, sum (pages) FROM library.magazine GROUP BY id;
 ```
 
 
-In the ideal world, all queries are performed based on the key, that is, there will always be the return of a single result. However, in some cases, it is necessary to perform searches using secondary indexes, bringing a large volume of results. One way to avoid this amount is to limit the maximum return value and cassandra has this feature. To do this, just use `LIMIT`.
+In the ideal world, all queries are performed based on the key, that is, there will always be the return of a single result. However, in some cases, it is necessary to perform searches using secondary indexes, bringing a large volume of results. One way to avoid this amount is to limit the maximum return value, and Cassandra has this feature. To do this, just use `LIMIT`.
 
 ```sql
 cqlsh> SELECT * FROM library.magazine LIMIT 1;
@@ -865,7 +865,7 @@ The ordering of the data is done from the `ORDER BY`, however, it is not as powe
 
 ```
 
-In a search query it is also possible to retrieve the values in the * JSON * format.
+In a search query, it is also possible to retrieve the values in the `JSON` format.
 
 ```sql
 cqlsh> SELECT JSON * FROM library.magazine;
@@ -884,12 +884,12 @@ cqlsh> SELECT JSON id, pages FROM library.magazine;
 
 ```
 
-> It is important to note that search operations within Cassandra are very limited, so the recommendation is to use the keys, leaving the index as the last option. There is also the feature of using `ALLOW FILTERING`, however, using this feature requires a very high performance impact.
+> It is important to note that search operations within Cassandra are very limited, so the recommendation is to use the keys, leaving the index as the last option. There is also the feature of using `ALLOW FILTERING`, however, using this feature requires a very high-performance impact.
 
 
 ### INSERT
 
-Within the `INSERT` clause it is possible to insert a row within the column family.
+Within the `INSERT` clause, it is possible to insert a row within the column family.
 
 ```sql
 insert_statement :: = INSERT INTO table_name (names_values | json_clause)
@@ -900,7 +900,7 @@ json_clause :: = JSON string [DEFAULT (NULL | UNSET)]
 names :: = '(' column_name (',' column_name) * ')'
 ```
 
-To insert the data using the `INSERT` clause it is possible to use it both in a very similar way to SQL and as JSON. For example, using the previous `magazine` column family.
+To insert the data using the `INSERT` clause, it is possible to use it both in a very similar way to SQL and as JSON. For example, using the previous magazine column family.
 
 ```sql
 INSERT INTO library.magazine (id, posted_at, articles, pages) values ('Java Magazine', '2017-01-01', {'Java EE 8', 'Java 7', 'NoSQL'}, 100);
@@ -917,7 +917,7 @@ INSERT INTO library.magazine JSON '{"id": "Java Magazine", "posted_at": "2017-01
 INSERT INTO library.magazine JSON '{"id": "Java Magazine", "posted_at": "2017-01-01"}';
 ```
 
-Besides the verification of the primary key, there is no other validation, that is, it is possible to have different values with the same key without any problem. Basically, if the key does not exist, it will be created, otherwise it will be overwritten.
+Besides the verification of the primary key, there is no other validation, that is, it is possible to have different values with the same key without any problem. If the key does not exist, it will be created, otherwise, it will be overwritten.
 
 ```sql
 INSERT INTO library.magazine JSON '{"id": "Java Magazine", "posted_at": "2017-01-01", "pages": 112}';
@@ -945,9 +945,9 @@ cqlsh> SELECT * FROM library.magazine WHERE id = 'Java Magazine';
 
 ### UPDATE
 
-To update, there is the `UPDATE` clause. In general, for Cassandra, it is nothing more than an `INSERT` with` WHERE`. As in `INSERT`, if the information exists, it will be updated, otherwise it will be overwritten. For example, given a simple family of librarian columns, your creation using the `UPDATE` clause would look like this:
+To update, there is the `UPDATE` clause. In general, for Cassandra, it is nothing more than an `INSERT` with `WHERE`. As in `INSERT`, if the information exists, it will be updated, otherwise, it will be overwritten. For example, given a simple family of librarian columns, your creation using the UPDATE clause would look like this:
 
-Creation of the librarian column family, as you can see, a librarian is inserted even using the `UPDATE` clause.
+Creation of the librarian column family, as you can see, a librarian is inserted using the `UPDATE` clause.
 
 ```sql
 DROP COLUMNFAMILY IF EXISTS library.librarian;
@@ -986,7 +986,7 @@ cqlsh> SELECT * FROM library.librarian where id = 'daniel';
 
 ### DELETE
 
-With the `DELETE` clause you can remove records within Cassandra, either just one column or the entire record, and for any operation the primary key, the partition key, is required.
+With the `DELETE` clause, you can remove records within Cassandra, either just one column or the entire record, and for any operation, the primary key and the partition key is required.
 
 
 ```sql
@@ -1033,7 +1033,7 @@ cqlsh> SELECT * FROM library.librarian;
 
 ### BATCH
 
-`BATCH` allows multiple change operations (INSERT, UPDATE and DELETE). The operations within a `BATCH` aim to perform several operations in an atomic way, that is, the operation happens or not.
+`BATCH` allows multiple change operations (INSERT, UPDATE, and DELETE). The operations within a `BATCH` aim to perform several operations in an atomic way, that is, the operation happens or not.
 
 It's important make sure that:
 
@@ -1041,7 +1041,7 @@ It's important make sure that:
 * `BATCH` commands are not fully supported by the transaction like relational banks;
 * All operations belong to _partition key_ to guarantee isolation;
 * By default, operations within `BATCH` will be atomic, so operations will eventually be complete or no operations will take place.
-* There is a big _trade-off_ in the use of `BATCH`: on the one hand, it can save network in the communication between the coordinating node and the other nodes for operations, on the other hand, it can use a node for several operations, hence the importance of know how to use this feature sparingly.
+* There is a big *trade-off* in the use of `BATCH`: on the one hand, it can save network in the communication between the coordinating node and the other nodes for operations, on the other hand, it can use a node for several operations, hence the importance of know how to use this feature sparingly.
 
 ```sql
 batch_statement :: = BEGIN [UNLOGGED | COUNTER] BATCH
@@ -1074,7 +1074,7 @@ cqlsh> SELECT * FROM library.librarian;
 
 ### View materialized
 
-Denormalization is the best friend of non-relational databases, and with Cassandra this is no exception. One of the features that can facilitate this modeling is the creation of materialized views. This feature serves as an ally for denormalization, while ensuring the consistency of a column family. An important point is that the materialized view cannot be changed.
+Denormalization is the best friend of non-relational databases, and with Cassandra, this is no exception. One of the features that can facilitate this modeling is the creation of materialized views. This feature serves as an ally for denormalization while ensuring the consistency of a column family. An important point is that the materialized view cannot be changed.
 
 
 ```sql
@@ -1100,7 +1100,7 @@ INSERT INTO library.book JSON '{"isbn": 2, "name": "Effective Java", "author": "
 INSERT INTO library.book JSON '{"isbn": 3, "name": "The Pragmatic Programmer", "author": "Andy Hunt"}';
 ```
 
-It is now possible to search smoothly from the ISBN. However, considering that the ISBN is done in an incremental way, we would like to return the most recent books from the library and, for that, a materialized view will be created for ISBNs greater than 3. Thus:
+It is now possible to search smoothly from the ISBN. However, considering that the ISBN is done incrementally, we would like to return the most recent books from the library and for that, a materialized view will be created for ISBN’s greater than 3. Thus:
 
 ```sql
 CREATE MATERIALIZED VIEW IF NOT EXISTS library.recent_book AS
@@ -1111,7 +1111,7 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS library.recent_book AS
 Warnings: Materialized views are experimental and are not recommended for production use.
 ```
 
-With the created materialized view it is possible to perform searches in a similar way as the column family.
+With the created materialized view, it is possible to perform searches similarly to the column family.
 
 ```sql
 cqlsh> SELECT * FROM library.recent_book;
@@ -1143,8 +1143,7 @@ DROP MATERIALIZED VIEW library.recent_book;
 ## Safety
 
 
-Cassandra has important support for the security feature. Thus, it is possible to define permission, create user, create rules, remove permission among others. The first step in applying this to the project is to enable the security feature by Cassandra. For that, it is necessary to make a change inside `cassandra.yaml` inside the` conf` folder: change the line `authenticator: AllowAllAuthenticator` to` authenticator: PasswordAuthenticator`.
-To enable Cassandra's permission management, it is also necessary to change the line `authorizer: AllowAllAuthorizer` to` authorizer: CassandraAuthorizer`.
+Cassandra has important support for the security feature. Thus, it is possible to define permission, create user, create rules, remove permission, among others. The first step in applying this to the project is to enable the security feature by Cassandra. For that, it is necessary to make a change inside `cassandra.yaml`, inside the `conf` folder: change the line `authenticator: AllowAllAuthenticator` to `authenticator: PasswordAuthenticator`.
 
 
 If you are using Docker, the solution would be to map the configuration location. Like this:
@@ -1180,9 +1179,9 @@ For Docker, access is similar, just search for the container ID and then add the
  docker exec -it 66e5f38a3815 cqlsh -u cassandra -p cassandra
 ```
 
-The whole creation was defined from the `ROLES`. For example, it is possible to create some users.
+The whole creation was defined from the ROLES. For example, it is possible to create some users.
 
-The users `ada` and` alice` created.
+The users `ada` and `alice` created.
 
 ```sql
 CREATE ROLE ada;
@@ -1195,7 +1194,7 @@ cqlsh> LIST ROLES;
  cassandr
 ```
 
-It is now possible to login with the user `alice`.
+It is now possible to log in with the user `alice`.
 
 ```sql
 ./cqlsh -u alice -p alice
@@ -1306,7 +1305,7 @@ CREATE ROLE jonh WITH PASSWORD = 'jonh' AND LOGIN = true;
 GRANT manager TO jonh;
 ```
 
-With all users created the first step is to explore a little bit of security inside Cassandra.
+With all users created, the first step is to explore a little bit of security inside Cassandra.
 
 ```sql
 ./cqlsh -u ada -p ada
@@ -1350,10 +1349,10 @@ INSERT INTO library.magazine JSON '{"id": "new magazine", "pages": 10}';
 Unauthorized: Error from server: code = 2100 [Unauthorized] message = "User ada has no MODIFY permission on <table library.magazine> or any of its parents"
 
 ```
-With security enabled within Cassandra, users will be allowed to perform some operations from the `role`. This is a very interesting way of ensuring that only systems or people have read or write access at points that they really need.
+With security enabled within Cassandra, users will be allowed to perform some operations from the `role`. This is a very interesting way of ensuring that only systems or people have read or write access at points that they need.
 
 ### Conclusion
 
-In this chapter it was possible to show that Cassandra Query Language or CQL has many more similarities with SQL besides the name, so that someone who already knows relational databases well and their communication syntax would have a low learning curve when learning the Cassandra.
+In this chapter, it was possible to show that Cassandra Query Language or CQL has many more similarities with SQL besides the name, so that someone who already knows relational databases well and their communication syntax would have a low learning curve when learning the Cassandra.
 
-One of the important points that this chapter explored was the use of security that exists within Cassandra. It is always important to be concerned with security whether with access firewalls or with user and password permission for points in the database.
+One of the important points that this chapter explored was the use of security that exists within Cassandra. It is always important to be concerned about security whether with access firewalls or with user and password permission for points in the database.
