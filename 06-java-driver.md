@@ -4,11 +4,11 @@ After all the theory, installation, notion of communication with CQL and modelin
 
 ## Minimum requirements for the demos
 
-In order to run all demos you will need to have Java 8 installed, in addition to Maven above version 3.5.3. At the time of writing, Java is in version 11, however, few frameworks have support for it, so to maintain coherence and facilitate the management of environment variables, the latest version of Java 8 will be used.
+To run all demos, you will need to have Java 8 installed, in addition to Maven above version 3.5.3. At the time of writing, Java is in version 11, however, few frameworks have support for it, so to maintain coherence and facilitate the management of environment variables, the latest version of Java 8 will be used.
 
-As the purpose of the book is to talk about Cassandra we consider that you have a notion of Java 8 and Maven, in addition to having both installed and properly configured in your favorite operating system. You use any IDE you feel comfortable with.
+As the purpose of the book is to talk about Cassandra, we consider that you have a notion of Java 8 and Maven, in addition to having both installed and properly configured in your favorite operating system. You use any IDE you feel comfortable with.
 
-To facilitate the comparison between the Java integration tools, a simple example will be used. In order to reduce the complexity of the application and not divert the focus, the examples will be based only on Java SE, that is, running purely the good old `public static void main (String [])`.
+To facilitate the comparison between the Java integration tools, a simple example will be used. To reduce the complexity of the application and not divert the focus, the examples will be based only on Java SE, that is, running purely the good old `public static void main (String [])`.
 
 Our example will be based on the same case as a bookstore:
 
@@ -17,7 +17,7 @@ We will have a library that will have books and each book will have an author an
 * Search for the book from the ISBN;
 * Search for books from the respective category.
 
-Thinking in a simple way, a model that meets all queries and distributes information would look like this:
+Thinking simply, a model that meets all queries and distributes information would look like this:
 
 ```sql
 CREATE KEYSPACE IF NOT EXISTS library WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
@@ -47,18 +47,18 @@ CREATE COLUMNFAMILY IF NOT EXISTS library.category (
 
 
 
-With this code, we created the initial structure, that is, the `book` column family to then integrate Cassandra with Java code.
+With this code, we created the initial structure, that is, the book column family to then integrate Cassandra with Java code.
 
 ## Skeleton of the example projects
 
-As already mentioned, the examples will be based on Java SE, so our first step with Java is to create the project. We will use _maven archetype_ to speed up the creation of this maven project. Access the terminal and run the following command:
+As already mentioned, the examples will be based on Java SE, so our first step with Java is to create the project. We will use the *maven archetype* to speed up the creation of this maven project. Access the terminal and run the following command:
 
 
 ```bash
 mvn archetype: generate -DgroupId = com.mycompany.app -DartifactId = my-app -DarchetypeArtifactId = maven-archetype-quickstart -DinteractiveMode = false
 ```
 
-An important point is that inside `pom.xml` it is important to update it to support Java 8. Thus, the file would look like this:
+An important point is that inside `pom.xml`, it is important to update it to support Java 8. Thus, the file would look like this:
 
 ```xml
 <project xmlns = "http://maven.apache.org/POM/4.0.0" xmlns: xsi = "http://www.w3.org/2001/XMLSchema-instance"
@@ -99,11 +99,11 @@ An important point is that inside `pom.xml` it is important to update it to supp
 
 
 
-> For each new project a good strategy would be to create it using the same skeleton.
+> For each new project, a good strategy would be to create it using the same skeleton.
 
 ## Using the Cassandra driver
 
-To start developing the code, the first step is to add the driver dependency within the file that manages the Maven dependencies, that is, the `pom.xml` inside the` dependencies` tag:
+To start developing the code, the first step is to add the driver dependency within the file that manages the Maven dependencies, that is, the `pom.xml` inside the `dependencies` tag:
 
 ```xml
 <dependency>
@@ -161,7 +161,7 @@ public class App {
 In the first class of interaction with Cassandra, it is possible to notice the intense use of Cassandra Query Language, which we explained in chapter 4. All operations with CQL are facilitated from the `QueryBuilder` class, which is a utility that contains several methods that make life easier for the developer to create CQL for an application.
 
 
-In our first interaction, we performed an insertion and a search of all values within the database, but this type of search is not very common and neither is it optimized. As we mentioned in the modeling chapter, the most recommended is always to perform a search for the key. Thus, in our next interaction we will perform searches from the key. To make the code a little easier, we will create a `Consumer` to log the result (it will not be anything sophisticated, just the good old` System.out.println`).
+In our first interaction, we performed an insertion and a search of all values within the database, but this type of search is not very common and neither is it optimized. As we mentioned in the modeling chapter, the most recommended is always to perform a search for the key. Thus, in our next interaction, we will perform searches from the key. To make the code a little easier, we will create a `Consumer` to log the result (it will not be anything sophisticated, just the good old `System.out.println`).
 
 
 ```java
@@ -222,7 +222,7 @@ public class App2 {
 }
 ```
 
-With the previous code it was possible to perform the basic operations of CRUD with trivial types in Cassandra. Following and evolving our example, we will perform manipulations with a custom Cassandra type, or UDT within the `Category` column family.
+With the previous code, it was possible to perform the basic operations of CRUD with trivial types in Cassandra. Following and evolving our example, we will perform manipulations with a custom Cassandra type, or UDT within the `Category` column family.
 
 ```java
 public class App3 {
@@ -284,7 +284,7 @@ public class App3 {
 ```
 
 
-Now we are able to insert a custom Cassandra type `UDT`, that is, in addition to performing the insertion we also recover a` UDT` type within the Cassandra database.
+Now we are able to insert a custom Cassandra type `UDT`, that is, in addition to performing the insertion we also recover a `UDT` type within the Cassandra database.
 
 
 The Cassandra Driver also has the concept of `PreparedStatement` which allows queries to be created dynamically, very similar to relational databases.
@@ -365,7 +365,7 @@ public class App4 {
 ```
 
 
-With that, we performed a complete example with the Cassandra Driver, and completed the entire CRUD cycle within the `Category` column family. Using the Driver is very good since we have access to all queries within the CQL, however, this ends up giving a great job, after all, for each operation we have to do the conversion to the Java type at all times.
+With that, we performed a complete example with the Cassandra Driver, and completed the entire CRUD cycle within the `Category` column family. Using the Driver is very good since we have access to all queries within the CQL, however, this ends up performing great, after all, for each operation, we have to convert to the Java type at all times. Is there any way to decrease the amount of code to work with Cassandra? The answer is yes, Cassandra also has tools that work to convert entities into native codes: Mappers.
 
 Is there any way to decrease the amount of code to work with Cassandra? The answer is yes, Cassandra also has tools that work to convert entities into native codes: Mappers.
 
@@ -373,7 +373,7 @@ Is there any way to decrease the amount of code to work with Cassandra? The answ
 ## Using the Mapper
 
 
-For our first contact, the Mapper will be used, which is maintained by the same company that maintains the Driver. In fact, it is a layer above the Driver layer:
+For our first contact, the Mapper will be used, which is maintained by the same company that maintains the Driver. It is a layer above the Driver layer:
 
 
 ```xml
@@ -413,9 +413,10 @@ public class Book {
 ```
 
 In the first contact with Mapper, the code reduction is impressive. The highlight for this example are the two new classes that appear:
-`MappingManager` and` Mapper`, which serve both to manage instances and to facilitate communication between CQL and a Java object respectively.
 
-Now, let's go even deeper, we still need to do a search for the key and also create dynamic queries with `PreparedStatement`.
+`MappingManager` and `Mapper`, which serve both to manage instances and to facilitate communication between CQL and a Java object respectively.
+
+Now, let's delve even deeper, we still need to do a search for the key and also create dynamic queries with `PreparedStatement`.
 
 ```java
 public class App {
@@ -508,9 +509,9 @@ public class App2 {
 }
 ```
 
-Our code creates four types of books and persists within the database. Then, search for the key and, finally, create a query with `PreparedStatement` and execute it without worrying about the conversion to our` Book` entity.
+Our code creates four types of books and persists within the database. Then, search for the key and, finally, create a query with `PreparedStatement` and execute it without worrying about the conversion to our `Book` entity.
 
-But we will not stop there. We will now create an interaction with the `UDT` types within the` category` column family.
+But we will not stop there. We will now create an interaction with the `UDT` types within the `category` column family.
 
 
 ```java
@@ -547,7 +548,7 @@ public class BookType {
 ```
 
 
-Modeling created and ready for interaction in the database with the `UDT` type that will be represented by the` Category` class, this class is very similar to the `Book` entity, which we created earlier, with the difference as the information will be informed. A point to note is that the notes are quite intuitive.
+Modeling created and ready for interaction in the database with the `UDT` type that will be represented by the `Category` class, this class is very similar to the `Book` entity, which we created earlier. A point to note is that the notes are quite intuitive.
 
 ```java
 public class App3 {
@@ -604,14 +605,14 @@ public class App3 {
 }
 ```
 
-The code is very similar to the interaction of the `Book` class, the only exception is the use of the` Category.class` class as a parameter inside the mmapper and, obviously, instances of type `Category` will be created for the persistence of the information.
+The code is very similar to the interaction of the Book class, the only exception is the use of the `Category.class` as a parameter inside the `mapper`, and instances of type `Category` will be created for the persistence of the information.
 
 
 > In Mapper, there are methods with the suffix `Async` that will perform operations asynchronously for the developer. The book will not cover all the features of Mapper, so for more information see the documentation:
 > https://docs.datastax.com/en/developer/java-driver/3.6/manual/object_mapper/.
 
 
-Impressed by the power of the Mapper? That is not all, it is also possible to create advisory interfaces that aim to read and write from Cassandra without much code. It is composed of the annotation `Query` that has the CQL that will be executed when the method is called, as it will be displayed with an interface that will perform operations inside the Book. The icing on the cake is to define this interface as advisors, for that, it is necessary to add the annotation `Accessor` in it.
+Impressed by the power of the Mapper? That is not all, it is also possible to create advisory interfaces that aim to read and write from Cassandra without much code. It is composed of the annotation Query that has the CQL that will be executed when the method is called, as it will be displayed with an interface that will perform operations inside the `Book`. The icing on the cake is to define this interface as advisors, for that, it is necessary to add the annotation `Accessor` in it.
 
 
 ```java
