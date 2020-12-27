@@ -2,13 +2,13 @@
 
 In the previous chapters, we discussed the concepts of non-relational databases, their comparisons with the relational ones, and we dissected the internal workings of Cassandra.
 
-In this chapter, we will have a more practical view: we will show how the installation process, configuration, how to create Cassandra instances inside a container with Docker, as well as how to create a cluster in a simple way with docker-compose.
+In this chapter, we will have a more practical view: we will show the installation process, configuration, how to create Cassandra instances inside a container with Docker, as well as how to create a cluster simply with docker-compose.
 
 ## Downloading Cassandra
 
-Before starting the installation it is important to talk about Cassandra's prerequisites. As it is a database made in Java, for installation it is necessary that you have installed some Java 8 implementation (OpenJDK, Azul, Oracle HotSpot etc.).
+Before starting the installation, it is important to talk about Cassandra's prerequisites. As it is a database made in Java, for installation, you must have installed some Java 8 implementation (OpenJDK, Azul, Oracle HotSpot, etc.).
 
-In this first installation moment, no other client will be used besides `cqlsh`, Cassandra's native communicator, so it is necessary that the computer also has the latest version of Python 2.7. `Cqlsh` is a communication bridge with the database that allows interaction with an instance via Shell lines through CQL, the Cassandra Query Language.
+In this first installation moment, no other client will be used besides cqlsh, Cassandra's native communicator, so it is necessary that the computer also has the latest version of Python 2.7. `Cqlsh` is a communication bridge with the database that allows interaction with an instance via Shell lines through CQL, the Cassandra Query Language.
 
 
 * Download Cassandra from the project website: http://cassandra.apache.org/download/
@@ -18,7 +18,7 @@ In this first installation moment, no other client will be used besides `cqlsh`,
 * With the files unzipped, the next step is to enter the `bin` folder and start Apache Cassandra. To do this, run the command `cassandra -f`.
 
 
-Once the database instance is up, the next step will be to test communication with it. For this, the client, mentioned above, will be used. Thus, to execute it, it is necessary to run the `. / Cqlsh` command inside the` bin` folder.
+Once the database instance is up, the next step will be to test communication with it. For this, the client mentioned above, will be used. Thus, to execute it, it is necessary to run the `. / Cqlsh` command inside the `bin` folder.
 
 ````bash
 Connected to Test Cluster at 127.0.0.1:9042.
@@ -32,24 +32,22 @@ cqlsh>
 
 ## Settings within the yaml file
 
-To run a single node, the default values are sufficient, however, to run in a cluster with more than one node, some changes are important. The main settings are found in the `conf` folder, in the` cassandra.yaml` file. The following stand out:
+To run a single node, the default values are sufficient, however, to run in a cluster with more than one node, some changes are important. The main settings are found in the `conf` folder, in the `cassandra.yaml` file. The following stand out:
 
 
 * `cluster_name`: the name of the cluster.
 * `seeds`: The Ips, the Internet Protocol (the computer address) of the seed nodes separated by commas.
 * `listen_address`: The Ips of the seed nodes, or the instances of Cassandra that will be used as a reference in a startup, separated by commas. These instances will be responsible for "training" new servers newly arrived in the cluster. Thus, it will be these nodes that will be in charge of sending all the necessary information so that the freshman node can work within the cluster.
-* `listen_interface`: Tells Cassandra which interface to use, consequently, which address to use. It is necessary to modify the `listen_address` or this configuration, however, not both.
+* `listen_interface`: Tells Cassandra which interface to use, consequently, which address to use. It is necessary to modify the listen_address or this configuration, however, not both.
 
 
 
 ## Simplifying installation with containers
 
 
-One way to install Cassandra is through a container with Docker. In a general view, a container is an isolated environment and Docker technology uses the linux kernel and resources, for example Cgroups and namespaces, to segregate processes, so that they can be executed independently.
+One way to install Cassandra is through a container with Docker. In a general view, a container is an isolated environment and Docker technology uses the linux kernel and resources, for example, Cgroups and namespaces, to segregate processes, so that they can be executed independently.
 
 The purpose of containers is to create such independence: the ability to run multiple processes and applications in isolation, make better use of the infrastructure, maintain security between the containers executed, in addition to the ease of creation and maintenance.
-
-> If you are interested in going deeper into Docker, visit: https://www.casadocodigo.com.br/products/livro-docker
 
 Once Docker is installed (https://docs.docker.com/install/), just run the following command on the console:
 
@@ -57,7 +55,7 @@ Once Docker is installed (https://docs.docker.com/install/), just run the follow
 docker run -d --name casandra-instance -p 9042: 9042 cassandra
 ```
 
-This command downloads and runs https://store.docker.com/images/cassandra, Cassandra's official image, directly from the _docker hub_.
+This command downloads and runs[ https://store.docker.com/images/cassandra](https://store.docker.com/images/cassandra), Cassandra's official image, directly from the *docker hub*.
 
 To run `cqlsh` inside Docker:
 
@@ -87,10 +85,13 @@ docker run --name some-cassandra -p 9042: 9042 -v / my / own / datadir: / var / 
 
 ## Creating the first cluster with Docker Compose
 
-Following the line of the Docker and container, in order to execute a cluster it is necessary to have many containers. One of the tools that allows the execution of multiple containers is Docker Compose.
-Compose is a tool to run multiple containers, which is done in a very simple way with a YAML configuration file. Thus, with a single command it is possible to run many containers. The following file shows a simple configuration using three nodes in the cluster.
+Following the line of the Docker and container, to execute a cluster, it is necessary to have many containers. One of the tools that allow the execution of multiple containers is Docker Compose.
 
-The entire description of containers, configuration of each and how they interrelate is made from a file of extension yml, which by convention as the name `docker-compose.yml`. This file contains the configuration of three Cassandra nodes from Docker images.
+Compose is a tool to run multiple containers, which is done in a very simple way with a YAML configuration file. Thus, with a single command, it is possible to run many containers. The following file shows a simple configuration using three nodes in the cluster.
+
+The entire description of containers, configuration of each, and how they interrelate is made from a file of extension yml, which by convention has the name `docker-compose.yml`. This file contains the configuration of three Cassandra nodes from Docker images.
+
+
 
 ``` yaml
 
@@ -190,8 +191,8 @@ networks:
 
 ### Conclusion
 
-The installation and configuration of Cassandra, whether in a cluster using a container such as Docker or not, proved to be something really very simple when compared to a similar cluster configuration within a relational database.
+The installation and configuration of Cassandra, whether in a cluster using a container such as Docker or not, proved to be something very simple when compared to a similar cluster configuration within a relational database.
 
-An important point is that the popularity of Docker is not in vain: its ease of execution and configuration for a node or clusters is really very interesting, especially for developers. Perhaps this is the reason why Docker is currently considered the greatest tool when it comes to DevOps.
+An important point is that the popularity of Docker is not in vain: its ease of execution and configuration for a node or clusters is very interesting, especially for developers. Perhaps this is the reason why Docker is currently considered the greatest tool when it comes to DevOps.
 
 In the next scenes, it will be discussed how to communicate with Cassandra, something that will be extremely simple if the reader is already used to relational banks.
