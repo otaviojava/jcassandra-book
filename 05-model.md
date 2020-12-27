@@ -1,17 +1,17 @@
 # Modeling your application with Cassandra
 
 
-Within data science, modeling is certainly one of the most enigmatic and most challenging points. An error at this point will mean a performance impact in both reading and writing information in the database. In the relational world, those who develop it are already accustomed to the concept of normalization - which is a set of rules that mainly aims at organizing within the relational database to avoid data redundancy. The point to be discussed is that, when relational banks emerged, they were focused on avoiding redundancy, after all, it was a big challenge since the price of storage was something really very expensive. For example, in 1980 a server that stored twenty-six megabytes had a cost of almost five thousand dollars, today, a terabyte costs less than fifty dollars.
+Within data science, modeling is certainly one of the most enigmatic and most challenging points. An error at this point will mean a performance impact on both reading and writing information in the database. In the relational world, those who develop it are already accustomed to the concept of normalization - which is a set of rules that mainly aim at organizing within the relational database to avoid data redundancy. The point to be discussed is that, when relational banks emerged, they were focused on avoiding redundancy, after all, it was a big challenge since the price of storage was something very expensive. For example, in 1980 a server that stored twenty-six megabytes had a cost of almost five thousand dollars, today, a terabyte costs less than fifty dollars.
 
 ![A 5MB hard drive in 1956 manufactured by IBM.](imagens/ibm_history_server.png "A 5MB hard drive in 1956 manufactured by IBM.")
 
-The consequence of normalization is that, with a great complexity of data and variety, to keep the data not duplicated it is necessary to perform a high amount of joins, the union of several tables, and consequently there is an increase in the response time of these queries . The current challenge is in response time and no longer in storage, as it was before. The purpose of this chapter is to demonstrate tips and motivations for modeling inside Cassandra.
+The consequence of normalization is that, with great complexity of data and variety, to keep the data not duplicated, it is necessary to perform a high amount of joins, the union of several tables, and consequently, there is an increase in the response time of these queries. The current challenge is in response time and no longer in storage, as it was before. The purpose of this chapter is to demonstrate tips and motivations for modeling inside Cassandra.
 
 ## Modeling tips
 
-Unlike relational banks in which normalization rules exist, within Cassandra the modeling principles are defined much more by the context of the application or volume. In other words, the same e-commerce system, for example, can be modeled differently depending on the resources and volume of each of these businesses. As most developers start with relational, the first tips will be precisely to understand what *are* not the goals of modeling with Cassandra:
+Unlike relational banks in which normalization rules exist, within Cassandra, the modeling principles are defined much more by the context of the application or volume. In other words, the same e-commerce system can be modeled differently depending on the resources and volume of each of these businesses. As most developers start with relational, the first tips will be precisely to understand what *are* not the goals of modeling with Cassandra:
 
-* Minimize the number of readings: within Cassandra writing is relatively inexpensive and efficient, different from reading; therefore, prioritize writing and try to read the information by the unique identifier as much as possible.
+* Minimize the number of readings: within Cassandra, writing is relatively inexpensive and efficient, different from reading; therefore, prioritize writing and try to read the information by the unique identifier as much as possible.
 * Normalization or minimizing duplicate data: denormalization and duplication of data are the best friends for modeling within Cassandra. Making reading as easy as possible is always the best strategy within Cassandra.
 * Emulate: don't try to emulate or in any way simulate the relational banks within Cassandra. The result will be similar to using a fork as a knife.
 
@@ -20,7 +20,7 @@ A good first step to start modeling is to know what queries the application need
 ### One-to-one cases
 
 Imagine the following scenario:
-Each book (ISBN, name and year) has its author (name and country).
+Each book (ISBN, name, and year) has its author (name and country).
 
 The first question for modeling:
 What queries do we want to support?
@@ -57,11 +57,11 @@ INSERT INTO library.book (isbn, name, year, author) values (5, 'Effective Java',
 INSERT INTO library.book (isbn, name, year, author) values (6, 'Java Puzzlers: Traps, Pitfalls, and Corner Cases', 2005, {name: 'Joshua Bloch', country: 'USA'});
 ```
 
-In the scenario it is possible to see the impact on the duplication of information, in the case of the authors. However, changing an author's name and nationality ends to be extremely rare.
+In the scenario, it is possible to see the impact on the duplication of information, in the case of the authors. However, changing an author's name and nationality tends to be extremely rare.
 
 ### Cases one to N
 
-Following the previous example, in the book-author relationship, this example will increase the number of authors, after all, there are books that have more than one writer. With that, there will be a list of a book for N authors. However, as the purpose of the reading has not changed, the modeling will not change.
+Following the previous example, in the book-author relationship, this example will increase the number of authors, after all, some books have more than one writer. With that, there will be a list of books for N authors. However, as the purpose of the reading has not changed, the modeling will not change.
 
 ```sql
 CREATE KEYSPACE IF NOT EXISTS library WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
@@ -94,7 +94,7 @@ The impact remains similar to the previous one: a high degree of duplicate data.
 
 ### Cases N to N
 
-For the last example, the goal is to create an N to N relationship. Following the business scope of a library, it is possible to think about the relationship between magazines and articles because a magazine has N articles in the same way that an article can be in N magazines . Regardless, in Cassandra the question is the same: what queries does the database want to support? In this scenario there will be two:
+For the last example, the goal is to create an N to N relationship. Following the business scope of a library, it is possible to think about the relationship between magazines and articles because a magazine has N articles in the same way that an article can be in N magazines. Regardless, in Cassandra the question is the same: what queries does the database want to support? In this scenario there will be two:
 
 * Search the magazine by ISSN
 * Search the article by title
@@ -147,7 +147,7 @@ INSERT INTO library.magazine (issn, name, editor, articles) values (1, 'Java Mag
 {name: 'Cloud and Docker', year: 2018, author: {name: 'Bruno Souza', country: 'Brazil'}}});
 ```
 
-In this case it is quite simple since both entities, magazines and articles, do not need to make changes.
+In this case, it is quite simple since both entities, magazines, and articles, do not need to make changes.
 
 ### Conclusion
-With that, modeling concepts were presented within a Cassandra database, demonstrating how it is different from a relational database. Its core concept is precisely to write as much as possible, since it tends to be a cheap operation, to precisely decrease the number of operations in reading. In the ideal world, it is possible to create queries and queries without using indexes either as a secondary or with the `ALLOW FILTERING` feature, however, there will be a huge job to manage the duplication of data that will exist.
+With that, modeling concepts were presented within a Cassandra database, demonstrating how it is different from a relational database. Its core concept is precisely to write as much as possible since it tends to be a cheap operation to precisely decrease the number of operations in reading. In the ideal world, it is possible to create queries without using indexes either as a secondary or with the `ALLOW FILTERING` feature. However, there will be a huge job to manage the duplication of data that will exist.
