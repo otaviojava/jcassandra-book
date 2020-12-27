@@ -193,6 +193,6 @@ networks:
 
 The installation and configuration of Cassandra, whether in a cluster using a container such as Docker or not, proved to be something very simple when compared to a similar cluster configuration within a relational database.
 
-An important point is that the popularity of Docker is not in vain: its ease of execution and configuration for a node or clusters is very interesting, especially for developers. Perhaps this is the reason why Docker is currently considered the greatest tool when it comes to DevOps.
+An important point is that the popularity of Docker is not in vain: its ease of execution and configuration for a node or clusters is fascinating, especially for developers. Perhaps this is the reason why Docker is currently considered the greatest tool when it comes to DevOps.
 
 In the next scenes, it will be discussed how to communicate with Cassandra, something that will be extremely simple if the reader is already used to relational banks.
