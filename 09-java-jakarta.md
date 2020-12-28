@@ -1,6 +1,6 @@
 # Creating an application with Java EE, ops, Jakarta EE
 
-One of the big differences within the Java world is the specifications. These specifications are governed by the JCP body, whose focus is to ensure transparent communication, strong participation among groups of Java users around the world. In addition to the community, there are several technical benefits, for example, the possibility of enjoying _multi-vendors_ avoiding being tied to a single supplier (the concept of _vendor lock-in_), commitment to backward compatibility, a rich documentation produced by several companies , among other benefits. The purpose of this chapter is to talk a little about one of the fruits of this organ: Java EE and its solution for the non-relational world.
+One of the big differences within the Java world is the specifications. These specifications are governed by the JCP body, whose focus is to ensure transparent communication, and strong participation among groups of Java users around the world. In addition to the community, there are several technical benefits, for example, the possibility of enjoying *multi-vendors,* avoiding being tied to a single supplier (the concept of *vendor lock-in*), commitment to backward compatibility, rich documentation produced by several companies, among other benefits. The purpose of this chapter is to talk a little about one of the fruits of this organ: Java EE and its solution for the non-relational world.
 
 ## What is Jakarta EE?
 
@@ -16,7 +16,7 @@ So, in general, Jakarta EE is just the new home of Java EE.
 
 <img src="imagens/jakartaee.png" alt="The Jakarta EE Logo" title="The Jakarta EE Logo" style="zoom:25%;" />
 
-As a premise, under a new direction with the Eclipse Foundation, Jakarta EE will maintain compatibility with the latest version of Java EE, version 8, in addition to bringing news to the platform. One of the important points is that in order to bring more news to the platform, a new cycle is being created to specify the famous JSRs, with the main focus on facilitating development, making fast deliveries and receiving feedbacks in faster ways from the community. As a first specification, Eclipse JNoSQL was born, whose focus is on integrating NoSQL and Java databases.
+As a premise, under a new direction with the Eclipse Foundation, Jakarta EE will maintain compatibility with the latest version of Java EE, version 8, in addition to bringing news to the platform. One of the important points is that, to bring more news to the platform, a new cycle is being created to specify the famous JSRs, with the main focus on facilitating development, making fast deliveries, and receiving feedbacks in faster ways from the community. As a first specification, Eclipse JNoSQL was born, whose focus is on integrating NoSQL and Java databases.
 
 
 ## Using Jakarta NoSQL, Jakarta EE's first specification
@@ -24,9 +24,9 @@ As a premise, under a new direction with the Eclipse Foundation, Jakarta EE will
 Jakarta NoSQL is a framework that integrates Java applications with NoSQL databases. It defines a group of APIs whose purpose is to standardize the communication between most databases and their common operations. This helps to decrease coupling with this type of technology used in current applications.
 The project has two layers:
 
-1. Communication layer: it is a group of APIs that define communication with non-relational databases. Compared to traditional non-relational banks, they are similar to the JDBC APIs. It contains four modules, one for each type of NoSQL bank: key-value, column family, document and graphs.
+1. **Communication layer**: it is a group of APIs that define communication with non-relational databases. Compared to traditional non-relational banks, they are similar to the JDBC APIs. It contains four modules, one for each type of NoSQL bank: key-value, column family, document, and graphs.
 
-2. Mapping layer: API that helps the developer to integrate with the non-relational database, being oriented to annotations and using technologies such as dependency injection and Bean Validation, which makes it simple for developers to use. Comparing with the classic RDBMS, this layer can be compared with JPA or other mapping frameworks like Hibernate.
+2. **Mapping layer**: API that helps the developer to integrate with the non-relational database, being oriented to annotations and using technologies such as dependency injection and Bean Validation, which makes it simple for developers to use. Comparing with the classic RDBMS, this layer can be compared with JPA or other mapping frameworks like Hibernate.
 
 
 ! [Eclipse JNoSQL architecture] (images / jnosql.png "Jakarta NoSQL architecture")
@@ -34,9 +34,9 @@ The project has two layers:
 
 As with Spring Data, Jakarta NoSQL works in conjunction with a dependency injection engine, however, the CDI specification is used in the project. Using the same principle, we will start with the codes and configuration files that are necessary to make the CDI container lift, in addition to communicating with Cassandra.
 
-> CDI is a very interesting dependency injection framework with several features, such as scope definition, event triggering in a synchronous and asynchronous way, in addition to being the standard of the Java world. To find out more, read the CDI book from Casa do Código: https://www.casadocodigo.com.br/products/livro-cdi
+> CDI is a very interesting dependency injection framework with several features, such as scope definition, event triggering synchronously and asynchronously, in addition to being the standard of the Java world.
 
-The configuration file is `bean.xml`, which is located inside` META-INF` (the same location as JPA` persistence.xml`). There will also be `CassandraProducer`, which will be responsible for creating the connection with Cassandra.
+The configuration file is `bean.xml`, which is located inside `META-INF` (the same location as JPA `persistence.xml`). There will also be `CassandraProducer`, which will be responsible for creating a connection with Cassandra.
 
 ```xml
 <beans xmlns = "http://xmlns.jcp.org/xml/ns/javaee"
@@ -49,7 +49,7 @@ http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd "
 
 The configuration class “teaches” the CDI how to generate the dependency on `CassandraColumnFamilyManager`, which is the class responsible for performing the communication between Java and the database. The `Settings` class represents the information for connecting to the database. In it, it is possible, for example, to define the password, user, clusters, among other information.
 
-The next step is to carry out the modeling of the book entity. If you come from the JPA world you will see that the concepts are the same, that is, we use the `Entity` annotation to map an entity, the` Id` annotation to identify the attribute that will be the unique identifier, in addition to the `Column` annotation for identify the other fields that will be persisted.
+The next step is to carry out the modeling of the book entity. If you come from the JPA world you will see that the concepts are the same, that is, we use the `Entity` annotation to map an entity, the Id annotation to identify the attribute that will be the unique identifier, in addition to the `Column` annotation for identifying the other fields that will be persisted.
 
 ```java
 @Entity ("book")
@@ -319,4 +319,4 @@ public class App5
 
 ### Conclusion
 
-With a new home and in an even more vibrant way, the Eclipse JNoSQL project was born under a new direction by Jakarta EE with the Eclipse Foundation. Jakarta NoSQL aims to facilitate the integration between Java and NoSQL with the strategy of dividing the communication and mapping layer. It currently supports more than thirty databases. Many improvements are expected, however, the great benefit of the platform is that it is totally community oriented. You can get out of your chair and help Jakarta EE yourself right now.
+With a new home and in an even more vibrant way, the Eclipse JNoSQL project was born under a new direction by Jakarta EE with the Eclipse Foundation. Jakarta NoSQL aims to facilitate the integration between Java and NoSQL with the strategy of dividing the communication and mapping layer. It currently supports more than thirty databases. Many improvements are expected, however, the great benefit of the platform is that it is totally community-oriented. You can get out of your chair and help Jakarta EE yourself right now.
