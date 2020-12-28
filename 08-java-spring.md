@@ -1,7 +1,7 @@
 # Creating an application with Java and Spring
 
 
-The Spring framework is an open source project whose objective is to facilitate Java development and today it has become one of the most popular tools worldwide. Its history clashes a lot with that of Java EE since it was born to fill the gap that Java EE could not, besides simplifying several points, such as the security part. In its beginning it was just a dependency injection framework, however, it currently has several subprojects, among which we can mention:
+The Spring framework is an open-source project whose objective is to facilitate Java development and today it has become one of the most popular tools worldwide. Its history clashes a lot with that of Java EE since it was born to fill the gap that Java EE could not, besides simplifying several points, such as the security part. In its beginning it was just a dependency injection framework, however, it currently has several subprojects, among which we can mention:
 
 * Spring Batch
 * Spring Boot
@@ -17,14 +17,14 @@ In this chapter, a little of the Spring world integrated with the use of Cassand
 ## Making data access easier with Spring Data
 
 
-Spring Data is one of several projects within the framework's umbrella. This subproject has the main objective of facilitating the integration between Java and the databases. There are several databases that are supported within Spring. Among its greatest features are:
+Spring Data is one of several projects within the framework's umbrella. This subproject has the main objective of facilitating the integration between Java and the databases. Several databases are supported within Spring. Among its greatest features are:
 
 * A great abstraction _object-mapping_
 * The _query by method_, which is based on the dynamic query performed on the interface
 * Easy integration with other projects within Spring, including Spring MVC and JavaConfig
 * Audit support
 
-Within Spring Data, there is Spring Data Cassandra, which supports the creation of repositories, synchronous and asynchronous operations, resources such as _query builders_ and a very high abstraction from Cassandra - to the point of making learning Cassandra Query Language unnecessary. To get into the wonderful world of Spring, the first step is to add dependency to the project.
+Within Spring Data, there is Spring Data Cassandra, which supports the creation of repositories, synchronous and asynchronous operations, resources such as *query builders,* and a very high abstraction from Cassandra - to the point of making learning Cassandra Query Language unnecessary. To get into the wonderful world of Spring, the first step is to add dependency to the project.
 
 
 ```xml
@@ -35,7 +35,7 @@ Within Spring Data, there is Spring Data Cassandra, which supports the creation 
 </dependency>
 ```
 
-Once the dependencies are defined, the next step is the infrastructure code that activates Spring and the connection configuration with Cassandra. The `Config` class has two annotations: one to search for components within a specific package and another to do something similar to the Cassandra repositories. The `CassandraConfig` class has the settings for connecting to Cassandra, for example, the keyspace to be used, cluster settings and the Mapper Cassandra Spring.
+Once the dependencies are defined, the next step is the infrastructure code that activates Spring and the connection configuration with Cassandra. The `Config` class has two annotations: one to search for components within a specific package and another to do something similar to the Cassandra repositories. The `CassandraConfig` class has the settings for connecting to Cassandra, for example, the keyspace to be used, cluster settings, and the Mapper Cassandra Spring.
 
 > Mapper Cassandra Spring, like Mappers in general, has the responsibility of converting a business entity in Java to Cassandra or vice versa.
 
@@ -75,11 +75,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 }
 ```
 
-> For more information about the Spring framework, a good book is _Turn the game with Spring_ from Casa docode: https://www.casadocodigo.com.br/products/livro-spring-framework
-
-
-
-Configuration code or infrastructure created, we will work on the first example, which is reading and writing the book. Modeling happens in a simple and intuitive way thanks to the Spring Data Cassandra annotations:
+Configuration code or infrastructure created, we will work on the first example, which is reading and writing the book. Modeling happens simply and intuitively thanks to the Spring Data Cassandra annotations:
 
 * `Table 'maps the entity.
 * `PrimaryKey` identifies the primary key within the entity.
@@ -107,7 +103,7 @@ public class Book {
 
 
 
-For data manipulation, there is the `CassandraTemplate` class, which is a skeleton to perform an operation between Cassandra and the mapped object. It works in a very analogous way to the Template Method pattern that defines the skeleton for the algorithm, however, for operations in the database with Cassandra, mapping the entities to the bank and vice versa. An important point of `CassandraTemplate` is that it is possible to make CQL calls, which it will be in charge of converting to the target object - in this case,` Book`.
+For data manipulation, there is the `CassandraTemplate` class, which is a skeleton to operate Cassandra and the mapped object. It works in a very analogous way to the Template Method pattern that defines the skeleton for the algorithm, however, for operations in the database with Cassandra, mapping the entities to the bank and vice versa. An important point of `CassandraTemplate` is that it is possible to make CQL calls, which will be in charge of converting to the target object - in this case, `Book`.
 
 ```java
 public class App {
@@ -179,7 +175,7 @@ public class App2 {
 
 
 
-For the next step, it is possible to notice that no contact is made with the CQL itself, only with the Cassandra template. In the following code we will use `CassandraTemplate` and perform the operations of inserting, retrieving and removing. Just to remember, we do not use `update`, since it works as an alias for` insert`.
+For the next step, it is possible to notice that no contact is made with the CQL itself, only with the Cassandra template. In the following code, we will use `CassandraTemplate` and perform the operations of inserting, retrieving, and removing. Just to remember, we do not use `update`, since it works as an alias for insert.
 
 ```java
 public class App2 {
@@ -210,7 +206,7 @@ public class App2 {
 }
 ```
 
-For the last part of the challenge, which consists of reading the book categories, the annotations are the same used in the case of the book, with the exception of the UDT `Book`, which has the annotations` UserDefinedType` and `CassandraType`, defining the name UDT and field information, respectively.
+For the last part of the challenge, which consists of reading the book categories, the annotations are the same used in the case of the book, except for the UDT `Book`, which has the annotations `UserDefinedType` and `CassandraType`, defining the name UDT and field information, respectively.
 
 ```java
 @Table
@@ -235,7 +231,7 @@ public class BookType {
 }
 ```
 
-In addition to the UDT notes, nothing differs from the first two cases regarding the query by the key and the persistence of the database. In the code below we will show an interaction between the entities and the UTC type. An important thing is the great power that Cassandra has and the possibilities of modeling without making the famous _joins_ in SQL. We will make an insertion of the category, which has a book type `Set`, and the book type which is a UDT will have a String` Set`.
+In addition to the UDT notes, nothing differs from the first two cases regarding the query by the key and the persistence of the database. In the code below we will show an interaction between the entities and the UTC type. An important thing is the great power that Cassandra has and the possibilities of modeling without making the famous *joins* in SQL. We will make an insertion of the category, which has a book type `Set`, and the book type which is a UDT will have a String `Set`.
 
 ```java
 public class App3 {
@@ -341,9 +337,9 @@ public class App4 {
 }
 ```
 
-In addition to the template class, Spring Data Cassandra has the concept of ** dynamic repositories **, in which the developer creates an interface and Spring will be responsible for the respective implementation. The new interface will inherit from `CassandraRepository`, which already has a large number of operations for the database.
+In addition to the template class, Spring Data Cassandra has the concept of **dynamic repositories**, in which the developer creates an interface and Spring will be responsible for the respective implementation. The new interface will inherit from `CassandraRepository`, which already has a large number of operations for the database.
 
-In addition, it is possible to use the concept of `query by method`, with which, when using search conversions in the method name, Spring will do all the heavy lifting. With these repositories, we have a valuable abstraction that reduces the number of code, generating a very high productivity.
+Also, it is possible to use the concept of `query by method`, with which, when using search conversions in the method name, Spring will do all the heavy lifting. With these repositories, we have a valuable abstraction that reduces the number of code, generating very high productivity.
 
 
 ```java
@@ -395,11 +391,11 @@ public class App5 {
 
 ```
 
-> The `CassandraRepository` interface is a specialization of` CrudRepository` for Cassandra operations. `CrudRepository` is a specialization of` Repository`. These interfaces are part of Spring Data. For more information: https://docs.spring.io/spring-data/data-commons/docs/2.1.x/reference/html/
+> The `CassandraRepository` interface is a specialization of `CrudRepository` for Cassandra operations. `CrudRepository` is a specialization of Repository. These interfaces are part of Spring Data. For more information:[ ](https://docs.spring.io/spring-data/data-commons/docs/2.1.x/reference/html/): https://docs.spring.io/spring-data/data-commons/docs/2.1.x/reference/html/
 >
 > Spring Data Cassandra has many more features, such as asynchronous operations that make the day to day of the developer much easier. To learn more: https://docs.spring.io/spring-data/cassandra/docs/2.1.2.RELEASE/reference/html/
 
 
 ### Conclusion
 
-The Spring framework is a project that brought great innovation to the Java world. Its features and facilities make it highly popular. Within the communication with the database, there is Spring Data with several facilitations to the point that it is not necessary to learn Cassandra Query Language. In this chapter, we had an introduction to Spring Data Cassandra and its resources. Its ease and integration with the Spring container makes Spring Data a great solution for applications that already use or intend to use Spring in some way.
+The Spring framework is a project that brought great innovation to the Java world. Its features and facilities make it highly popular. Within the communication with the database, there is Spring Data with several facilitations to the point that it is not necessary to learn Cassandra Query Language. In this chapter, we had an introduction to Spring Data Cassandra and its resources. Its ease and integration with the Spring container make Spring Data a great solution for applications that already use or intend to use Spring in some way.
