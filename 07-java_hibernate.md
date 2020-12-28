@@ -1,6 +1,6 @@
 # Creating an application with Hibernate
 
-In the relational world there are several ORM frameworks that facilitate the integration between the application and the relational object, among them, the most famous in the Java world is Hibernate. It is an open source Java ORM created by Gavin King and is currently developed by RedHat. In the Java world, there is a standardization process which is the JSR, Java Speficication Request, governed by the JCP, Java Community Process (At the moment As I write this chapter, there is a migration process from the JCP process to the Eclipse Foundation with a new name, which will be discussed in the chapter on Jakarta). The specifications guarantee several benefits, among them several companies, academic institutions and community members contributing to the projects, totally oriented to the community. And the main thing: blocking the vendor-lock in, so the developer does not have the risk of the project being discontinued by one company, since it may be replaced by others. The specification between the Java world and the relational bank is JPA, which is part of the Java EE platform, now Jakarta EE.
+In the relational world, several ORM frameworks facilitate the integration between the application and the relational object, among them, the most famous in the Java world is Hibernate. It is an open-source Java ORM created by Gavin King and is currently developed by RedHat. In the Java world, there is a standardization process which is the JSR, Java Specification Request, governed by the JCP, Java Community Process (At the moment As I write this chapter, there is a migration process from the JCP process to the Eclipse Foundation with a new name, which will be discussed in the chapter on Jakarta). The specifications guarantee several benefits, among them several companies, academic institutions, and community members contributing to the projects, totally oriented to the community. And the main thing: blocking the vendor-lock in, so the developer does not have the risk of the project being discontinued by one company, since it may be replaced by others. The specification between the Java world and the relational bank is JPA, which is part of the Java EE platform, now Jakarta EE.
 
 Like Spring, Hibernate has several subprojects to facilitate the development world more focused on the world of data persistence, for example, Hibernate Search, Hibernate Validator, among other things. In this chapter, let's talk a little more about Hibernate and its relationship with the non-relational world with Hibernate OGM.
 
@@ -8,7 +8,7 @@ Like Spring, Hibernate has several subprojects to facilitate the development wor
 ## What is Hibernate OGM?
 
 
-In order to facilitate integration and reduce the learning curve to learn non-relational databases, Hibernate OGM was born. Its approach is quite simple, which is to use the JPA API, which Java developers already know, with NoSQL databases. Currently Hibernate OGM has support for several projects:
+To facilitate integration and reduce the learning curve to learn non-relational databases, Hibernate OGM was born. Its approach is quite simple, which is to use the JPA API, which Java developers already know, with NoSQL databases. Currently, Hibernate OGM has support for several projects:
 
 
 * Cassandra
@@ -47,8 +47,8 @@ With a brief introduction to the history of Hibernate and the importance of this
 The configuration between the database and the Java framework is performed from the `persistence.xml` file, following the JPA configuration line, that is, there is no news for a developer who already knows this specification.
 
 * `hibernate.ogm.datastore.provider`: defines which implementation Hibernate will use, in this case, the implementation that uses Cassandra.
-* `hibernate.ogm.datastore.database`: for Cassandra it is the` keyspace`, that is, for this example it will be the `library`.
-* `hibernate.search.default.directory_provider` and` hibernate.search.default.indexBase`: One of the dependencies in Hibernate OGM Cassandra is Hiberante Search, which is the part of Hibernate that offers `full-search` for objects managed by Hibernate. Searches can be performed using Lucene or Elasticsearch.
+* `hibernate.ogm.datastore.database`:  for Cassandra, it is the `keyspace`, that is, for this example, it will be the `library`.
+* `hibernate.search.default.directory_provider` and` hibernate.search.default.indexBase`: One of the dependencies in Hibernate OGM Cassandra is Hibernate Search, which is the part of Hibernate that offers full-search for objects managed by Hibernate. Searches can be performed using Lucene or Elasticsearch.
 
 
 ```xml
@@ -143,9 +143,9 @@ public class App {
 
 
 
-As expected, every operation takes place through the `EntityManager`. The information definitely only goes to the database when the transaction is committed. Like? The point is that, even though Cassandra does not have a native transaction in the database, Hibernate ends up simulating this behavior that can be dangerous, especially in distributed environments.
+As expected, every operation takes place through the `EntityManager`. The information only goes to the database when the transaction is committed. Like? The point is that, even though Cassandra does not have a native transaction in the database, Hibernate ends up simulating this behavior that can be dangerous, especially in distributed environments.
 
-The JPQL feature, Java Persistence Query Language, is a query query created for JPA and is also available within Hibernate OGM, all thanks to Hibernate Search, which allows you to search for fields in addition to the partition key. There is a counterpart: this field cannot be analyzed within the search, that is, within the annotation `Field` the attribute` analizy` will need to be defined as `Analyze.NO` (check how the field` name` was noted within the class ).
+The JPQL feature, Java Persistence Query Language, is a query created for JPA and is also available within Hibernate OGM, all thanks to Hibernate Search, which allows you to search for fields in addition to the partition key. There is a counterpart: this field cannot be analyzed within the search, that is, within the annotation `Field`, the attribute `analysis` will need to be defined as `Analyze.NO` (check how the fieldname was noted within the class ).
 
 
 ```java
@@ -189,7 +189,7 @@ public class App2 {
 }
 ```
 
-With the search engine activated in the project, it is possible to carry out searches using all Lucene resources. For example, perform a `term` search, which searches for a word within the text, in addition to defining analyzers, tokens, etc. As the code below shows, `FullTextEntityManager` is a` EntityManager` specialization with search engine capabilities. This makes the search possible for non-ID fields that are searchable, in addition to offering very powerful resources.
+With the search engine activated in the project, it is possible to carry out searches using all Lucene resources. For example, perform a `term` search, which searches for a word within the text, in addition to defining analyzers, tokens, etc. As the code below shows, `FullTextEntityManager` is an `EntityManager` specialization with search engine capabilities. This makes the search possible for non-ID fields that are searchable, in addition to offering very powerful resources.
 
 ```java
 
@@ -287,4 +287,4 @@ public class App4 {
 
 ### Conclusion
 
-Using an API that the developer already knows to navigate a new paradigm in the world of persistence is a great strategy that Hibernate takes advantage of. In this chapter we saw how to use the JPA API to work with Apache Cassandra, which greatly reduces the learning curve for an experienced Java developer. However, this facility takes its toll, since the JPA was made for the relational database. There are several gaps that API tends to not cover in the NoSQL world, for example, asynchronous operations as well as definitions of the existing consistency level in Cassandra. In the next chapter we will also see a specification of the Java world, however, an API created specifically for the non-relational world.
+Using an API that the developer already knows to navigate a new paradigm in the world of persistence is a great strategy that Hibernate takes advantage of. In this chapter, we saw how to use the JPA API to work with Apache Cassandra, which greatly reduces the learning curve for an experienced Java developer. However, this facility takes its toll, since the JPA was made for the relational database. There are several gaps that API tends to not cover in the NoSQL world, for example, asynchronous operations as well as definitions of the existing consistency level in Cassandra. In the next chapter, we will also see a specification of the Java world, however, an API created specifically for the non-relational world.
