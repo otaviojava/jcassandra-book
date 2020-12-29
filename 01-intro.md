@@ -58,7 +58,7 @@ These types of databases are important when dealing with a high degree of data v
 Among the types of databases of the column family type, Apache Cassandra is the most famous. Thus, if an application needs to deal with a large volume of data and with easy scalability, Cassandra is certainly a good option.
 
 
-By comparing the column type family bank with the relational banks, it is possible to notice that the operations, in general, are much faster. It is simpler to work with large volumes of information and servers distributed around the world, however, this comes at a cost: the reading of this type of database is very limited. For example, it is not possible to make joins between a family of columns as in the relational bank. The column family allows you to have an unlimited number of columns, which in turn is composed of name and information, exactly as shown in the following table:
+By comparing the column type family bank with the relational banks, it is possible to notice that the operations, in general, are much faster. It is simpler to work with large volumes of information and servers distributed around the world. However, this comes at a cost: the reading of this type of database is very limited. For example, it is not possible to make joins between a family of columns as in the relational bank. The column family allows you to have an unlimited number of columns, which in turn is composed of name and information, exactly as shown in the following table:
 
 | Relational structure | Column family structure |
 | -------------------- | ----------------------- |
