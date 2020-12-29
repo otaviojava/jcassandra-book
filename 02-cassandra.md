@@ -34,7 +34,7 @@ For example, given a cluster with five servers, and a keyspace with a replicatio
 
 * **Simple Strategy**: this is the replication strategy indicated in case it is necessary to use only a single datacenter with all nodes.
 
-* **Network Topology Strategy**: This strategy is highly recommended for production environments and is used when it is necessary to use more than one data center. This is recommended for several reasons, for example, imagine a natural disaster in the region where one of the data centers are located, in São Paulo. This will not be a problem if the developer has two other datacenters up his sleeve, around Brazil, as in Salvador and another one in Rio de Janeiro. This is something very similar that Netflix does with its data with datacenters around the world.
+* **Network Topology Strategy**: This strategy is highly recommended for production environments and is used when it is necessary to use more than one data center. This is recommended for several reasons, for example, imagine a natural disaster in the region where one of the data centers are located, in São Paulo. This will not be a problem if the developer has two other datacenters up his sleeve, around Brazil, as in Salvador, and another one in Rio de Janeiro. This is something very similar that Netflix does with its data with datacenters around the world.
 
 
 ### Column Family and Column
