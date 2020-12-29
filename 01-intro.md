@@ -103,7 +103,7 @@ When comparing with a relational base, although it is possible to perform a sear
 
 ![Graphics Structure](imagens/graph.png "Graphics Structure")
 
-Graph-type banks are a data structure that connects a set of vertices through a set of edges. Modern banks in this category support multi-relational graph structures, where there are different types of vertices (representing people, places, items) and different types of edges. The recommendation systems that take place on social networks are the biggest case for the graph type bank. Of the most famous database types in the NoSQL world, the graph has a distinct structure with the relational one.
+Graph-type banks are a data structure that connects a set of vertices through a set of edges. Modern banks in this category support multi-relational graph structures, where there are different types of vertices (representing people, places, items) and different types of edges. The recommendation systems that take place on social networks are the biggest case for the graph type bank. Of the most famous database types in the NoSQL world, the graph has a distinct structure from the relational one.
 
 
 * Neo4j
