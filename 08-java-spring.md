@@ -77,7 +77,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
 Configuration code or infrastructure created, we will work on the first example, which is reading and writing the book. Modeling happens simply and intuitively thanks to the Spring Data Cassandra annotations:
 
-* `Table 'maps the entity.
+* `Table` maps the entity.
 * `PrimaryKey` identifies the primary key within the entity.
 * `Column` defines the attributes that will be persisted within Cassandra.
 
