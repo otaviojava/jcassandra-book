@@ -62,7 +62,7 @@ To run `cqlsh` inside Docker:
 
 * List the containers running on the machine with the `docker ps` command
 
-````bash
+```bash
 $ docker ps
 CONTAINER ID IMAGE
 7373093f921a cassandra
@@ -70,7 +70,7 @@ CONTAINER ID IMAGE
 
 * Each container created has a unique identifier or ID. The purpose of the previous command was to list the existing containers and their respective Ids. Once you have found the Cassandra container ID,  run the command for `docker exec -it CONTAINER_ID cqlsh`.
 
-````bash
+```bash
 $ docker exec -it 7373093f921a cqlsh
 Connected to Test Cluster at 127.0.0.1:9042.
 [cqlsh 5.0.1 | Cassandra 3.11.3 | CQL spec 3.4.4 | Native protocol v4] Use HELP for help.
@@ -80,7 +80,7 @@ cqlsh> SHOW VERSION
 
 By default in Docker, all files are created inside the container. Thus, to extract the volume of data out of the container, it is necessary to map the `/var/lib/cassandra` path, for example:
 
-````bash
+```bash
 docker run --name some-cassandra -p 9042: 9042 -v /my/own/datadir:/var/lib/cassandra -d cassandra
 ```
 
@@ -94,7 +94,7 @@ The entire description of containers, configuration of each, and how they interr
 
 > Make sure you replace the volume directory with your own.
 
-``` yaml
+```yaml
 
 version: '3.2'
 
