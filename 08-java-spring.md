@@ -19,19 +19,19 @@ In this chapter, a little of the Spring world integrated with the use of Cassand
 
 Spring Data is one of several projects within the framework's umbrella. This subproject has the main objective of facilitating the integration between Java and the databases. Several databases are supported within Spring. Among its greatest features are:
 
-* A great abstraction _object-mapping_
-* The _query by method_, which is based on the dynamic query performed on the interface
-* Easy integration with other projects within Spring, including Spring MVC and JavaConfig
-* Audit support
+* A great abstraction _object-mapping_;
+* The _query by method_, which is based on the dynamic query performed on the interface;
+* Easy integration with other projects within Spring, including Spring MVC and JavaConfig;
+* Audit support.
 
 Within Spring Data, there is Spring Data Cassandra, which supports the creation of repositories, synchronous and asynchronous operations, resources such as *query builders,* and a very high abstraction from Cassandra - to the point of making learning Cassandra Query Language unnecessary. To get into the wonderful world of Spring, the first step is to add dependency to the project.
 
 
 ```xml
 <dependency>
-    <groupId> org.springframework.data </groupId>
-    <artifactId> spring-data-cassandra </artifactId>
-    <version> 2.2.4.RELEASE </version>
+    <groupId>org.springframework.data</groupId>
+    <artifactId>spring-data-cassandra</artifactId>
+    <version>2.2.4.RELEASE</version>
 </dependency>
 ```
 
@@ -41,8 +41,8 @@ Once the dependencies are defined, the next step is the infrastructure code that
 
 
 ```java
-@ComponentScan ("com.nosqlxp.cassandra")
-@EnableCassandraRepositories ("com.nosqlxp.cassandra")
+@ComponentScan("com.nosqlxp.cassandra")
+@EnableCassandraRepositories("com.nosqlxp.cassandra")
 public class Config {
 }
 
@@ -51,23 +51,23 @@ public class Config {
 public class CassandraConfig extends AbstractCassandraConfiguration {
 
     @Override
-    protected String getKeyspaceName () {
+    protected String getKeyspaceName() {
         return "library";
     }
     
     @Bean
-    public CassandraClusterFactoryBean cluster () {
+    public CassandraClusterFactoryBean cluster() {
         CassandraClusterFactoryBean cluster =
-                new CassandraClusterFactoryBean ();
-        cluster.setContactPoints ("127.0.0.1");
-        cluster.setPort (9042);
+                new CassandraClusterFactoryBean();
+        cluster.setContactPoints("127.0.0.1");
+        cluster.setPort(9042);
         return cluster;
     }
     
     @Bean
-    public CassandraMappingContext cassandraMapping () {
-        BasicCassandraMappingContext mappingContext = new BasicCassandraMappingContext ();
-        mappingContext.setUserTypeResolver (new SimpleUserTypeResolver (cluster (). getObject (), getKeyspaceName ()));
+    public CassandraMappingContext cassandraMapping() {
+        BasicCassandraMappingContext mappingContext = new BasicCassandraMappingContext();
+        mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cluster().getObject(), getKeyspaceName()));
         return mappingContext;
     }
 
@@ -75,7 +75,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 }
 ```
 
-Configuration code or infrastructure created, we will work on the first example, which is reading and writing the book. Modeling happens simply and intuitively thanks to the Spring Data Cassandra annotations:
+Configuration code and infrastructure created, we will work on the first example, which is reading and writing the book. Modeling happens simply and intuitively thanks to the Spring Data Cassandra annotations:
 
 * `Table` maps the entity.
 * `PrimaryKey` identifies the primary key within the entity.
@@ -95,7 +95,7 @@ public class Book {
     private String author;
     
     @Column
-    private Set <String> categories;
+    private Set<String> categories;
     
     // getter and setter
 }
@@ -103,39 +103,39 @@ public class Book {
 
 
 
-For data manipulation, there is the `CassandraTemplate` class, which is a skeleton to operate Cassandra and the mapped object. It works in a very analogous way to the Template Method pattern that defines the skeleton for the algorithm, however, for operations in the database with Cassandra, mapping the entities to the bank and vice versa. An important point of `CassandraTemplate` is that it is possible to make CQL calls, which will be in charge of converting to the target object - in this case, `Book`.
+For data manipulation, there is the `CassandraTemplate` class, which is a skeleton to operate Cassandra and the mapped object. It works in a very analogous way to the Template Method pattern that defines the skeleton for the algorithm, however, for operations in the database with Cassandra, mapping the entities to the database and vice versa. An important point of `CassandraTemplate` is that it is possible to make CQL calls, which will be in charge of converting to the target object - in this case, `Book`.
 
 ```java
 public class App {
     private static final String KEYSPACE = "library";
     private static final String COLUMN_FAMILY = "book";
 
-    public static void main (String [] args) {
+    public static void main(String [] args) {
     
-        try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext (Config.class)) {
+        try(AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class)) {
     
-            CassandraTemplate template = ctx.getBean (CassandraTemplate.class);
+            CassandraTemplate template = ctx.getBean(CassandraTemplate.class);
     
-            Book cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet ("Java", "OO"));
-            Book cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet ("Good practice"));
-            Book effectiveJava = getBook (3L, "Effective Java", "Joshua Bloch", Sets.newHashSet ("Java", "Good practice"));
-            Book nosql = getBook (4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet ("NoSQL", "Good practice"));
+            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
+            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
+            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
+            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
     
-            template.insert (cleanCode);
-            template.insert (cleanArchitecture);
-            template.insert (effectiveJava);
-            template.insert (nosql);
+            template.insert(cleanCode);
+            template.insert(cleanArchitecture);
+            template.insert(effectiveJava);
+            template.insert(nosql);
     
-            List <Book> books = template.select (QueryBuilder.select (). From (KEYSPACE, COLUMN_FAMILY), Book.class);
-            System.out.println (books);
+            List<Book> books = template.select(QueryBuilder.select().from(KEYSPACE, COLUMN_FAMILY), Book.class);
+            System.out.println(books);
         }
     }
-    private static Book getBook (long isbn, String name, String author, Set <String> categories) {
-        Book book = new Book ();
-        book.setIsbn (isbn);
-        book.setName (name);
-        book.setAuthor (author);
-        book.setCategories (categories);
+    private static Book getBook(long isbn, String name, String author, Set<String> categories) {
+        Book book = new Book();
+        book.setIsbn(isbn);
+        book.setName(name);
+        book.setAuthor(author);
+        book.setCategories(categories);
         return book;
     }
 }
@@ -145,28 +145,28 @@ The `AnnotationConfigApplicationContext` class raises the Spring container, scan
 
 ```java
 public class App2 {
-    public static void main (String [] args) { 
-        try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext (Config.class)) {
-            CassandraTemplate template = ctx.getBean (CassandraTemplate.class);
-            Book cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet ("Java", "OO"));
-            Book cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet ("Good practice"));
-            Book effectiveJava = getBook (3L, "Effective Java", "Joshua Bloch", Sets.newHashSet ("Java", "Good practice"));
-            Book nosql = getBook (4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet ("NoSQL", "Good practice"));
-            template.insert (cleanCode);
-            template.insert (cleanArchitecture);
-            template.insert (effectiveJava);
-            template.insert (nosql);
-            Book book = template.selectOneById (1L, Book.class);
-            System.out.println (book);
-            template.deleteById (1L, Book.class);
+    public static void main(String [] args) { 
+        try(AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class)) {
+            CassandraTemplate template = ctx.getBean(CassandraTemplate.class);
+            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
+            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
+            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
+            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
+            template.insert(cleanCode);
+            template.insert(cleanArchitecture);
+            template.insert(effectiveJava);
+            template.insert(nosql);
+            Book book = template.selectOneById(1L, Book.class);
+            System.out.println(book);
+            template.deleteById(1L, Book.class);
         }
     }
-    private static Book getBook (long isbn, String name, String author, Set <String> categories) {
-        Book book = new Book ();
-        book.setIsbn (isbn);
-        book.setName (name);
-        book.setAuthor (author);
-        book.setCategories (categories);
+    private static Book getBook(long isbn, String name, String author, Set<String> categories) {
+        Book book = new Book();
+        book.setIsbn(isbn);
+        book.setName(name);
+        book.setAuthor(author);
+        book.setCategories(categories);
         return book;
     }
 }
@@ -179,28 +179,28 @@ For the next step, it is possible to notice that no contact is made with the CQL
 
 ```java
 public class App2 {
-    public static void main (String [] args) { 
-        try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext (Config.class)) {
-            CassandraTemplate template = ctx.getBean (CassandraTemplate.class);
-            Book cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet ("Java", "OO"));
-            Book cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet ("Good practice"));
-            Book effectiveJava = getBook (3L, "Effective Java", "Joshua Bloch", Sets.newHashSet ("Java", "Good practice"));
-            Book nosql = getBook (4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet ("NoSQL", "Good practice"));
-            template.insert (cleanCode);
-            template.insert (cleanArchitecture);
-            template.insert (effectiveJava);
-            template.insert (nosql);
-            Book book = template.selectOneById (1L, Book.class);
-            System.out.println (book);
-            template.deleteById (1L, Book.class);
+    public static void main(String [] args) { 
+        try(AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class)) {
+            CassandraTemplate template = ctx.getBean(CassandraTemplate.class);
+            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
+            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
+            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
+            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
+            template.insert(cleanCode);
+            template.insert(cleanArchitecture);
+            template.insert(effectiveJava);
+            template.insert(nosql);
+            Book book = template.selectOneById(1L, Book.class);
+            System.out.println(book);
+            template.deleteById(1L, Book.class);
         }
     }
-    private static Book getBook (long isbn, String name, String author, Set <String> categories) {
-        Book book = new Book ();
-        book.setIsbn (isbn);
-        book.setName (name);
-        book.setAuthor (author);
-        book.setCategories (categories);
+    private static Book getBook(long isbn, String name, String author, Set<String> categories) {
+        Book book = new Book();
+        book.setIsbn(isbn);
+        book.setName(name);
+        book.setAuthor(author);
+        book.setCategories(categories);
         return book;
     }
 }
@@ -214,19 +214,19 @@ public class Category {
     @PrimaryKey
     private String name;
     @Column
-    private Set <BookType> books;
+    private Set<BookType> books;
    // getter and setter
 }
-@UserDefinedType ("book")
+@UserDefinedType("book")
 public class BookType {
-    @CassandraType (type = DataType.Name.BIGINT)
+    @CassandraType(type = DataType.Name.BIGINT)
     private Long isbn;
-    @CassandraType (type = DataType.Name.TEXT)
+    @CassandraType(type = DataType.Name.TEXT)
     private String name;
-    @CassandraType (type = DataType.Name.TEXT)
+    @CassandraType(type = DataType.Name.TEXT)
     private String author;
-    @CassandraType (type = DataType.Name.SET, typeArguments = DataType.Name.TEXT)
-    private Set <String> categories;
+    @CassandraType(type = DataType.Name.SET, typeArguments = DataType.Name.TEXT)
+    private Set<String> categories;
     // getter and setter
 }
 ```
@@ -239,47 +239,47 @@ public class App3 {
     private static final String KEYSPACE = "library";
     private static final String COLUMN_FAMILY = "category";
     
-    public static void main (String [] args) {
+    public static void main(String [] args) {
     
-        try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext (Config.class)) {
+        try(AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class)) {
     
-            CassandraTemplate template = ctx.getBean (CassandraTemplate.class);
+            CassandraTemplate template = ctx.getBean(CassandraTemplate.class);
     
-            BookType cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet ("Java", "OO"));
-            BookType cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet ("Good practice"));
-            BookType effectiveJava = getBook (3L, "Effective Java", "Joshua Bloch", Sets.newHashSet ("Java", "Good practice"));
-            BookType nosqlDistilled = getBook (4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet ("NoSQL", "Good practice"));
+            BookType cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
+            BookType cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
+            BookType effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
+            BookType nosqlDistilled = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
 
 
-            Category java = getCategory ("Java", Sets.newHashSet (cleanCode, effectiveJava));
-            Category oo = getCategory ("OO", Sets.newHashSet (cleanCode, effectiveJava, cleanArchitecture));
-            Category goodPractice = getCategory ("Good practice", Sets.newHashSet (cleanCode, effectiveJava, cleanArchitecture, nosqlDistilled));
-            Category nosql = getCategory ("NoSQL", Sets.newHashSet (nosqlDistilled));
+            Category java = getCategory("Java", Sets.newHashSet(cleanCode, effectiveJava));
+            Category oo = getCategory("OO", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture));
+            Category goodPractice = getCategory("Good practice", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture, nosqlDistilled));
+            Category nosql = getCategory("NoSQL", Sets.newHashSet(nosqlDistilled));
     
-            template.insert (java);
-            template.insert (oo);
-            template.insert (goodPractice);
-            template.insert (nosql);
+            template.insert(java);
+            template.insert(oo);
+            template.insert(goodPractice);
+            template.insert(nosql);
     
-            List <Category> categories = template.select (QueryBuilder.select (). From (KEYSPACE, COLUMN_FAMILY), Category.class);
-            System.out.println (categories);
+            List<Category> categories = template.select(QueryBuilder.select().from(KEYSPACE, COLUMN_FAMILY), Category.class);
+            System.out.println(categories);
         }
     
     }
     
-    private static Category getCategory (String name, Set <BookType> books) {
-        Category category = new Category ();
-        category.setName (name);
-        category.setBooks (books);
+    private static Category getCategory(String name, Set<BookType> books) {
+        Category category = new Category();
+        category.setName(name);
+        category.setBooks(books);
         return category;
     }
     
-    private static BookType getBook (long isbn, String name, String author, Set <String> categories) {
-        BookType book = new BookType ();
-        book.setIsbn (isbn);
-        book.setName (name);
-        book.setAuthor (author);
-        book.setCategories (categories);
+    private static BookType getBook(long isbn, String name, String author, Set<String> categories) {
+        BookType book = new BookType();
+        book.setIsbn(isbn);
+        book.setName(name);
+        book.setAuthor(author);
+        book.setCategories(categories);
         return book;
     }
 
@@ -288,49 +288,48 @@ public class App3 {
 public class App4 {
 
 
-    public static void main (String [] args) {
+    public static void main(String [] args) {
     
-        try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext (Config.class)) {
+        try(AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class)) {
     
-            CassandraTemplate template = ctx.getBean (CassandraTemplate.class);
+            CassandraTemplate template = ctx.getBean(CassandraTemplate.class);
     
-            BookType cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet ("Java", "OO"));
-            BookType cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet ("Good practice"));
-            BookType effectiveJava = getBook (3L, "Effective Java", "Joshua Bloch", Sets.newHashSet ("Java", "Good practice"));
-            BookType nosqlDistilled = getBook (4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet ("NoSQL", "Good practice"));
+            BookType cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
+            BookType cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
+            BookType effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
+            BookType nosqlDistilled = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
 
-
-            Category java = getCategory ("Java", Sets.newHashSet (cleanCode, effectiveJava));
-            Category oo = getCategory ("OO", Sets.newHashSet (cleanCode, effectiveJava, cleanArchitecture));
-            Category goodPractice = getCategory ("Good practice", Sets.newHashSet (cleanCode, effectiveJava, cleanArchitecture, nosqlDistilled));
-            Category nosql = getCategory ("NoSQL", Sets.newHashSet (nosqlDistilled));
+            Category java = getCategory("Java", Sets.newHashSet(cleanCode, effectiveJava));
+            Category oo = getCategory("OO", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture));
+            Category goodPractice = getCategory("Good practice", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture, nosqlDistilled));
+            Category nosql = getCategory("NoSQL", Sets.newHashSet(nosqlDistilled));
     
-            template.insert (java);
-            template.insert (oo);
-            template.insert (goodPractice);
-            template.insert (nosql);
+            template.insert(java);
+            template.insert(oo);
+            template.insert(goodPractice);
+            template.insert(nosql);
     
-            Category category = template.selectOneById ("Java", Category.class);
-            System.out.println (category);
-            template.deleteById ("Java", Category.class);
+            Category category = template.selectOneById("Java", Category.class);
+            System.out.println(category);
+            template.deleteById("Java", Category.class);
     
         }
     
     }
     
-    private static Category getCategory (String name, Set <BookType> books) {
-        Category category = new Category ();
-        category.setName (name);
-        category.setBooks (books);
+    private static Category getCategory(String name, Set<BookType> books) {
+        Category category = new Category();
+        category.setName(name);
+        category.setBooks(books);
         return category;
     }
     
-    private static BookType getBook (long isbn, String name, String author, Set <String> categories) {
-        BookType book = new BookType ();
-        book.setIsbn (isbn);
-        book.setName (name);
-        book.setAuthor (author);
-        book.setCategories (categories);
+    private static BookType getBook(long isbn, String name, String author, Set<String> categories) {
+        BookType book = new BookType();
+        book.setIsbn(isbn);
+        book.setName(name);
+        book.setAuthor(author);
+        book.setCategories(categories);
         return book;
     }
 
@@ -344,47 +343,47 @@ Also, it is possible to use the concept of `query by method`, with which, when u
 
 ```java
 @Repository
-public interface BookRepository extends CassandraRepository <Book, Long> {
+public interface BookRepository extends CassandraRepository<Book, Long> {
 
-    @Query ("select * from book")
-    List <Book> findAll ();
+    @Query("select * from book")
+    List<Book> findAll();
 }
 
 
 public class App5 {
 
-    public static void main (String [] args) {
+    public static void main(String [] args) {
     
-        try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext (Config.class)) {
+        try(AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class)) {
     
-            BookRepository repository = ctx.getBean (BookRepository.class);
-            Book cleanCode = getBook (1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet ("Java", "OO"));
-            Book cleanArchitecture = getBook (2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet ("Good practice"));
-            Book effectiveJava = getBook (3L, "Effective Java", "Joshua Bloch", Sets.newHashSet ("Java", "Good practice"));
-            Book nosql = getBook (4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet ("NoSQL", "Good practice"));
+            BookRepository repository = ctx.getBean(BookRepository.class);
+            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
+            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
+            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
+            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
     
-            repository.insert (cleanCode);
-            repository.insert (cleanArchitecture);
-            repository.insert (effectiveJava);
-            repository.insert (nosql);
+            repository.insert(cleanCode);
+            repository.insert(cleanArchitecture);
+            repository.insert(effectiveJava);
+            repository.insert(nosql);
     
-            List <Book> books = repository.findAll ();
-            System.out.println (books);
+            List<Book> books = repository.findAll();
+            System.out.println(books);
     
-            Optional <Book> book = repository.findById (1L);
-            System.out.println (book);
+            Optional<Book> book = repository.findById(1L);
+            System.out.println(book);
 
 
         }
     }
 
 
-    private static Book getBook (long isbn, String name, String author, Set <String> categories) {
-        Book book = new Book ();
-        book.setIsbn (isbn);
-        book.setName (name);
-        book.setAuthor (author);
-        book.setCategories (categories);
+    private static Book getBook(long isbn, String name, String author, Set<String> categories) {
+        Book book = new Book();
+        book.setIsbn(isbn);
+        book.setName(name);
+        book.setAuthor(author);
+        book.setCategories(categories);
         return book;
     }
 }
