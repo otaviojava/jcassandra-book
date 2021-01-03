@@ -23,7 +23,7 @@ Since Cassandra is a NoSQL database of the column family type, it follows the sa
 * Column Family
 * Column
 
-![The structure inside Cassandra](imagens/hierarchy.png "The structure inside Cassandra")
+![The structure inside Cassandra](imagens/hierarchy.png)
 
 ### Keyspace
 
@@ -50,7 +50,7 @@ The parts of the column are:
 
 
 
-![The Column structure inside Cassandra](imagens/column_cassandra.png "The Column structure inside Cassandra")
+![The Column structure inside Cassandra](imagens/column_cassandra.png)
 
 
 
@@ -69,14 +69,11 @@ In Cassandra, each node has the responsibility for both writing and reading. Whe
 
 
 
-![From the keys a hash, partitioner, will be generated, with which it is defined which node will be responsible for the request. Each node automatically receives a range based on the Vnode concept.](imagens/coordinator.png "From the keys a hash, partitioner will be generated, with which it is defined which node will be responsible for the request. Each node automatically receives a range based on the Vnode concept.")
+![From the keys a hash, partitioner, will be generated, with which it is defined which node will be responsible for the request. Each node automatically receives a range based on the Vnode concept.](imagens/coordinator.png)
 
 The partitioner has a responsibility to define how data will be distributed around nodes within a data center. In general, it will generate a numeric value from the ID. This configuration is performed globally, that is, all clusters must use the same type of partitioner.
 
 ![The figure shows the insertion of three records. During an insertion, it is possible to notice that each record has a field that defines it as a unique or key identifier, yellow (Jim, Carol and Suzy). From that key, the partitioner will be responsible for generating a numeric value and, afterwards, saying which node is responsible for that information. In our example, the information with the key `Jim` generated the numeric value one and will go to the server * A *.](imagens/partitioner.png "The figure shows the insertion of three records. During an insertion, it is possible to notice that each record has a field that defines it as a unique or key identifier, yellow (Jim, Carol and Suzy). From that key, the partitioner will be responsible for generating a numeric value and, afterwards, saying which node is responsible for that information. In our example, the information with the key `Jim` generated the numeric value one and will go to the server * A *.")
-
-
-
 
 
 ## Consistency versus availability
