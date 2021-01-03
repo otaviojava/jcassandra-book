@@ -21,7 +21,7 @@ In this first installation moment, no other client will be used besides `cqlsh`,
 
 Once the database instance is up, the next step will be to test communication with it. For this, the client mentioned above, will be used. Thus, to execute it, it is necessary to run the `./cqlsh` command inside the `bin` folder.
 
-````bash
+```bash
 Connected to Test Cluster at 127.0.0.1:9042.
 [cqlsh 5.0.1 | Cassandra 3.11.3 | CQL spec 3.4.4 | Native protocol v4]
 Use HELP for help.
