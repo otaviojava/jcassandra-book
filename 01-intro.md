@@ -13,7 +13,6 @@ Currently, NoSQL databases are classified into four groups (key value, column fa
 ## Key-value
 
 
-
 ![Key Value structure](imagens/key-value.png)
 
 Key-value databases have a structure similar to `java.util.Map`, that is, the information will be retrieved exclusively by its key. This type of database can be used, for example, to manage the user's session. Another interesting use case is the DNS, whose key is the address, for example, `www.google.com` and the value is the IP of that server.
@@ -37,11 +36,7 @@ When comparing relational databases with the key-value type, it is possible to n
 
 ### Column family/Wide-column
 
-
-
 ![Column family structure](imagens/column.png)
-
-
 
 
 This model became popular through Google's *paper “BigTable”*, with the objective of building a distributed data storage system, designed to have a high degree of scalability and data volume. Like the key-value, to perform a search or retrieve some information within the database, it is necessary to use the field that functions as a unique identifier that would be similar to the key in the key-value structure. However, the similarities end there. The information is grouped in columns: a unit of information that is made up of the name and the information itself.
@@ -68,10 +63,7 @@ By comparing the column type family database with the relational databases, it i
 | Relationship         | Not supported           |
 
 
-
-
 ## Document oriented
-
 
 
 ![Document structure {w = 30%}](imagens/document.png)
@@ -96,9 +88,7 @@ When compared with a relational base, although it is possible to perform a searc
 | Relationship         | -                  |
 
 
-
 ## Graphs
-
 
 
 ![Graphics Structure](imagens/graph.png)
