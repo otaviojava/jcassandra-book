@@ -3,7 +3,7 @@
 
 Within data science, modeling is certainly one of the most enigmatic and most challenging points. An error at this point will mean a performance impact on both reading and writing information in the database. In the relational world, those who develop it are already accustomed to the concept of normalization - which is a set of rules that mainly aim at organizing within the relational database to avoid data redundancy. The point to be discussed is that, when relational databases emerged, they were focused on avoiding redundancy, after all, it was a big challenge since the price of storage was something very expensive. For example, in 1980 a server that stored twenty-six megabytes had a cost of almost five thousand dollars, today, a terabyte costs less than fifty dollars.
 
-![A 5MB hard drive in 1956 manufactured by IBM.](imagens/ibm_history_server.png "A 5MB hard drive in 1956 manufactured by IBM.")
+![A 5MB hard drive in 1956 manufactured by IBM.](imagens/ibm_history_server.png)
 
 The consequence of normalization is that, with great complexity of data and variety, to avoid data replication, it is necessary to perform a high amount of joins, the union of several tables, and consequently, there is an increase in the response time of these queries. The current challenge is in response time and no longer in storage, as it was before. The purpose of this chapter is to demonstrate tips and motivations for modeling inside Cassandra.
 
