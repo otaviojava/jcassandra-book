@@ -73,7 +73,7 @@ In Cassandra, each node has the responsibility for both writing and reading. Whe
 
 The partitioner has a responsibility to define how data will be distributed around nodes within a data center. In general, it will generate a numeric value from the ID. This configuration is performed globally, that is, all clusters must use the same type of partitioner.
 
-![The figure shows the insertion of three records. During an insertion, it is possible to notice that each record has a field that defines it as a unique or key identifier, yellow (Jim, Carol and Suzy). From that key, the partitioner will be responsible for generating a numeric value and, afterwards, saying which node is responsible for that information. In our example, the information with the key `Jim` generated the numeric value one and will go to the server * A *.](imagens/partitioner.png "The figure shows the insertion of three records. During an insertion, it is possible to notice that each record has a field that defines it as a unique or key identifier, yellow (Jim, Carol and Suzy). From that key, the partitioner will be responsible for generating a numeric value and, afterwards, saying which node is responsible for that information. In our example, the information with the key `Jim` generated the numeric value one and will go to the server * A *.")
+![The figure shows the insertion of three records. During an insertion, it is possible to notice that each record has a field that defines it as a unique or key identifier, yellow (Jim, Carol and Suzy). From that key, the partitioner will be responsible for generating a numeric value and, afterwards, saying which node is responsible for that information. In our example, the information with the key `Jim` generated the numeric value one and will go to the server * A *.](imagens/partitioner.png)
 
 
 ## Consistency versus availability
@@ -82,7 +82,7 @@ For each request, it is possible to configure the level of consistency with whic
 
 It is important to note that the greater the number of nodes used for an operation, it is possible to guarantee a high degree of consistency.
 
-![Balance between consistency and availability within a Cassandra Request](imagens/consistency_vs_disponibility.png "Balance between consistency and availability within a Cassandra Request")
+![Balance between consistency and availability within a Cassandra Request](imagens/consistency_vs_disponibility.png)
 
 ## Inside a Cassandra node
 
@@ -96,7 +96,7 @@ Once we discuss how Cassandra works in a cluster, we also need to talk about how
 
 It is also important to note that both `memtables` and `SSTable` are stored by table, in an organized way and optimized for reading and writing, and `SSTable` has its information in the disk.
 
-![The writing sequence that takes place inside a Cassandra node.](imagens/write_sequence.png "The writing sequence that takes place inside a Cassandra node.")
+![The writing sequence that takes place inside a Cassandra node.](imagens/write_sequence.png)
 
 ### Writing operations
 
