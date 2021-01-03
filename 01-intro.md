@@ -39,7 +39,7 @@ When comparing relational databases with the key-value type, it is possible to n
 
 
 
-![Column family structure](imagens/column.png "Column family structure")
+![Column family structure](imagens/column.png)
 
 
 
@@ -74,7 +74,7 @@ By comparing the column type family database with the relational databases, it i
 
 
 
-![Document structure {w = 30%}](imagens/document.png "Document collection structure")
+![Document structure {w = 30%}](imagens/document.png)
 
 Document-oriented databases have a structure very similar to a `JSON` or `XML` file. They are composed of a large number of fields, which are created at runtime, generating great flexibility, both for reading and writing operations.
 
@@ -101,7 +101,7 @@ When compared with a relational base, although it is possible to perform a searc
 
 
 
-![Graphics Structure](imagens/graph.png "Graphics Structure")
+![Graphics Structure](imagens/graph.png)
 
 Graph-type databases are a data structure that connects a set of vertices through a set of edges. Modern databases in this category support multi-relational graph structures, where there are different types of vertices (representing people, places, items) and different types of edges. The recommendation systems that take place on social networks are the biggest case for the graph type database. Of the most famous database types in the NoSQL world, the graph has a distinct structure from the relational one.
 
@@ -114,7 +114,7 @@ Graph-type databases are a data structure that connects a set of vertices throug
 
 ## CAP theorem
 
-![CAP theorem](imagens/cap.png "CAP theorem")
+![CAP theorem](imagens/cap.png)
 
 One of the biggest challenges of NoSQL databases is that they deal with distributed persistence, that is, the information is located in more than one server. Several studies were created to help in this challenge of distributed persistence. The most famous was a theory created in 1999, the CAP Theorem.
 
