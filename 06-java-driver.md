@@ -58,7 +58,7 @@ As already mentioned, the examples will be based on Java SE, so our first step w
 mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 ```
 
-An important point is that inside `pom.xml`, it is important to update it to support Java 8. Thus, the file would look like this:
+An important point is that inside `pom.xml`, it is important to update it to support Java 11. Thus, the file would look like this:
 
 ```xml
 <project xmlns = "http://maven.apache.org/POM/4.0.0" xmlns: xsi = "http://www.w3.org/2001/XMLSchema-instance"
@@ -78,8 +78,8 @@ An important point is that inside `pom.xml`, it is important to update it to sup
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>11</source>
+                    <target>11</target>
                </configuration>
            </plugin>
        </plugins>
@@ -107,49 +107,63 @@ To start developing the code, the first step is to add the driver dependency wit
 
 ```xml
 <dependency>
-    <groupId>com.datastax.cassandra</groupId>
-    <artifactId>cassandra-driver-core</artifactId>
-    <version>3.6.0</version>
+    <groupId>com.datastax.oss</groupId>
+    <artifactId>java-driver-core</artifactId>
+    <version>${data.stax.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.datastax.oss</groupId>
+    <artifactId>java-driver-query-builder</artifactId>
+    <version>${data.stax.version}</version>
 </dependency>
 ```
 
 > To make it easier, we will not activate security and will be based on a local installation or with Docker with the following command: `docker run -d --name casandra-instance -p 9042:9042 cassandra`.
 
-With the dependency within the project, the next step is to start communication. The `Cluster` is the class that represents Cassandra's node structure. With it, it is possible to use `try-resource`, this way, as soon as the code is closed, the cluster is closed. The `Session` interface represents the connection to Cassandra, thus, it is from there that the insertion and update commands are executed within the database.
+With the dependency within the project, the next step is to start communication. The `CqlSession` interface represents the connection to Cassandra, thus, it is from there that the insertion and update commands are executed within the database.
 
 ```java
 public class App {
 
     private static final String KEYSPACE = "library";
     private static final String COLUMN_FAMILY = "book";
-    private static final String[] NAMES = new String[]{"isbn", "name", "author", "categories"};
-    
+
     public static void main(String[] args) {
-        try(Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()) {
-    
-            Session session = cluster.connect();
-    
-            Object[] cleanCode = new Object[]{1, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO")};
-            Object[] cleanArchitecture = new Object[]{2, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice")};
-            Object[] effectiveJava = new Object[]{3, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice")};
-            Object[] nosql = new Object[]{4, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice")};
-    
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, cleanCode));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, cleanArchitecture));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, effectiveJava));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, nosql));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, cleanCode));
-    
-            ResultSet resultSet = session.execute(QueryBuilder.select().from(KEYSPACE, COLUMN_FAMILY));
-            for(Row row: resultSet) {
+        try (CqlSession session = CqlSession.builder().build()) {
+
+            Map<String, Term> cleanCode = createInsertQuery(new Object[]{1, "Clean Code", "Robert Cecil Martin",
+                    Set.of("Java", "OO")});
+            Map<String, Term> cleanArchitecture = createInsertQuery(new Object[]{2, "Clean Architecture",
+                    "Robert Cecil Martin",
+                    Set.of("Good practice")});
+            Map<String, Term> effectiveJava = createInsertQuery(new Object[]{3, "Effective Java", "Joshua Bloch",
+                    Set.of("Java", "Good practice")});
+            Map<String, Term> nosql = createInsertQuery(new Object[]{4, "Nosql Distilled", "Martin Fowler",
+                    Set.of("NoSQL", "Good practice")});
+
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(cleanCode).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(cleanArchitecture).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(effectiveJava).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(nosql).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(cleanCode).build());
+
+            ResultSet resultSet = session.execute(QueryBuilder.selectFrom(KEYSPACE, COLUMN_FAMILY).all().build());
+            for (Row row : resultSet) {
                 Long isbn = row.getLong("isbn");
                 String name = row.getString("name");
                 String author = row.getString("author");
-                Set <String> categories = row.getSet("categories", String.class);
-                System.out.println(String.format("the result is% s% s% s% s", isbn, name, author, categories));
+                Set<String> categories = row.getSet("categories", String.class);
+                System.out.println(String.format(" the result is %s %s %s %s", isbn, name, author, categories));
             }
         }
-    
+
+    }
+
+    private static Map<String, Term>  createInsertQuery(Object[] parameters) {
+        return Map.of("isbn", literal(parameters[0]), "name", literal(parameters[1]),
+                "author", literal(parameters[2]),
+                "categories", literal(parameters[3]));
+
     }
 
 }
@@ -169,50 +183,64 @@ public class App2 {
 
     private static final String KEYSPACE = "library";
     private static final String COLUMN_FAMILY = "book";
-    private static final String[] NAMES = new String[] {"isbn", "name", "author", "categories"};
-    
+
     public static void main(String[] args) {
-        try(Cluster cluster = Cluster.builder(). addContactPoint("127.0.0.1"). build()) {
-    
-            Session session = cluster.connect();
-    
-            Object[] cleanCode = new Object[] {1, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO")};
-            Object[] cleanArchitecture = new Object[] {2, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice")};
-            Object[] effectiveJava = new Object[] {3, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice")};
-            Object[] nosql = new Object[] {4, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice")};
-    
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, cleanCode));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, cleanArchitecture));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, effectiveJava));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, nosql));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, cleanCode));
-    
-            Consumer <Row>log = row ->{
+        try (CqlSession session = CqlSession.builder().build()) {
+
+            Map<String, Term> cleanCode = createInsertQuery(new Object[]{1, "Clean Code", "Robert Cecil Martin",
+                    Set.of("Java", "OO")});
+            Map<String, Term> cleanArchitecture = createInsertQuery(new Object[]{2, "Clean Architecture",
+                    "Robert Cecil Martin",
+                    Set.of("Good practice")});
+            Map<String, Term> effectiveJava = createInsertQuery(new Object[]{3, "Effective Java", "Joshua Bloch",
+                    Set.of("Java", "Good practice")});
+            Map<String, Term> nosql = createInsertQuery(new Object[]{4, "Nosql Distilled", "Martin Fowler",
+                    Set.of("NoSQL", "Good practice")});
+
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(cleanCode).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(cleanArchitecture).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(effectiveJava).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(nosql).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(cleanCode).build());
+
+            Consumer<Row> log = row -> {
                 Long isbn = row.getLong("isbn");
                 String name = row.getString("name");
                 String author = row.getString("author");
-                Set <String>categories = row.getSet("categories", String.class);
-                System.out.println(String.format("the result is% s% s% s% s", isbn, name, author, categories));
+                Set<String> categories = row.getSet("categories", String.class);
+                System.out.println(String.format(" the result is %s %s %s %s", isbn, name, author, categories));
             };
-    
-            findById(session, 1L, log);
-    
+
+            findById(session,1L, log);
+
             deleteById(session, 1L);
-    
-            PreparedStatement prepare = session.prepare("select * from library.book where isbn =?");
+
+            PreparedStatement prepare = session.prepare("select * from library.book where isbn = ?");
             BoundStatement statement = prepare.bind(2L);
             ResultSet resultSet = session.execute(statement);
             resultSet.forEach(log);
+
         }
+
     }
-    
-    private static void deleteById(Session session, Long isbn) {
-        session.execute(QueryBuilder.delete(). from(KEYSPACE, COLUMN_FAMILY) .where(QueryBuilder.eq("isbn", isbn)));  
+
+    private static void deleteById(CqlSession session, Long isbn) {
+        session.execute(QueryBuilder.deleteFrom(KEYSPACE, COLUMN_FAMILY)
+                .where(Relation.column("isbn").isEqualTo(QueryBuilder.literal(isbn))).build());
+
     }
-    
-    private static void findById(Session session, long isbn, Consumer <Row>log) {
-        ResultSet resultSet = session.execute(QueryBuilder.select().from(KEYSPACE, COLUMN_FAMILY) .where(QueryBuilder.eq("isbn", isbn)));
+
+    private static void findById(CqlSession session, long isbn, Consumer<Row> log) {
+        ResultSet resultSet = session.execute(QueryBuilder.selectFrom(KEYSPACE, COLUMN_FAMILY)
+                .all().where(Relation.column("isbn").isEqualTo(QueryBuilder.literal(isbn))).build());
         resultSet.forEach(log);
+    }
+
+    private static Map<String, Term> createInsertQuery(Object[] parameters) {
+        return Map.of("isbn", literal(parameters[0]), "name", literal(parameters[1]),
+                "author", literal(parameters[2]),
+                "categories", literal(parameters[3]));
+
     }
 
 }
@@ -226,52 +254,65 @@ public class App3 {
     private static final String KEYSPACE = "library";
     private static final String TYPE = "book";
     private static final String COLUMN_FAMILY = "category";
-    private static final String[] NAMES = new String[]{"name", "books"};
-    
+
     public static void main(String[] args) {
-        try(Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()) {
-    
-            Session session = cluster.connect();
-    
-            UserType userType = session.getCluster().getMetadata().getKeyspace(KEYSPACE).getUserType(TYPE);
-            UDTValue cleanCode = getValue(userType, 1, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO", "Good practice", "Design"));
-            UDTValue cleanArchitecture = getValue(userType, 2, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("OO", "Good practice"));
-            UDTValue effectiveJava = getValue(userType, 3, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "OO", "Good practice"));
-            UDTValue nosql = getValue(userType, 4, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
-    
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, new Object[] {"Java", Sets.newHashSet(cleanCode, effectiveJava)}));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, new Object[] {"OO", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture)}));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, new Object[] {"Good practice", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture, nosql)});
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, new Object[] {"NoSQL", Sets.newHashSet(nosql)}));
-    
-            ResultSet resultSet = session.execute(QueryBuilder.select().from(KEYSPACE, COLUMN_FAMILY));
-            for(Row row: resultSet) {
+        try (CqlSession session = CqlSession.builder().build()) {
+
+            UserDefinedType userType =
+                    session.getMetadata()
+                            .getKeyspace(KEYSPACE)
+                            .flatMap(ks -> ks.getUserDefinedType(TYPE))
+                            .orElseThrow(() -> new IllegalArgumentException("Missing UDT definition"));
+
+            UdtValue cleanCode = getValue(userType, 1, "Clean Code", "Robert Cecil Martin", Set.of("Java", "OO", "Good practice", "Design"));
+            UdtValue cleanArchitecture = getValue(userType, 2, "Clean Architecture", "Robert Cecil Martin", Set.of("OO", "Good practice"));
+            UdtValue effectiveJava = getValue(userType, 3, "Effective Java", "Joshua Bloch", Set.of("Java", "OO", "Good practice"));
+            UdtValue nosql = getValue(userType, 4, "Nosql Distilled", "Martin Fowler", Set.of("NoSQL", "Good practice"));
+
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY)
+                    .values(createCondition("Java", Set.of(cleanCode, effectiveJava))).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY)
+                    .values(createCondition("OO", Set.of(cleanCode, effectiveJava, cleanArchitecture))).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY)
+                    .values(createCondition("Good practice",
+                            Set.of(cleanCode, effectiveJava, cleanArchitecture, nosql))).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY)
+                    .values(createCondition("NoSQL", Set.of(nosql))).build());
+
+            ResultSet resultSet = session.execute(QueryBuilder.selectFrom(KEYSPACE, COLUMN_FAMILY).all().build());
+            for (Row row : resultSet) {
                 String name = row.getString("name");
-                Set<UDTValue> books = row.getSet("books", UDTValue.class);
-                Set<String> logBooks = new HashSet <>();
-                for(UDTValue book: books) {
+                Set<UdtValue> books = row.getSet("books", UdtValue.class);
+                Set<String> logBooks = new HashSet<>();
+                for (UdtValue book : books) {
                     long isbn = book.getLong("isbn");
                     String bookName = book.getString("name");
                     String author = book.getString("author");
-                    logBooks.add(String.format("% d% s% s", isbn, bookName, author));
+                    logBooks.add(String.format(" %d %s %s", isbn, bookName, author));
                 }
-                System.out.println(String.format("The result% s% s", name, logBooks));
+                System.out.println(String.format("The result %s %s", name, logBooks));
+
             }
         }
-  
+
     }
-    
-    private static UDTValue getValue(UserType userType, long isbn, String name, String author, Set<String> categories) {
-        UDTValue udtValue = userType.newValue();
-        TypeCodec<Object> textCodec = CodecRegistry.DEFAULT_INSTANCE.codecFor(DataType.text());
-        TypeCodec<Object> setCodec = CodecRegistry.DEFAULT_INSTANCE.codecFor(DataType.set(DataType.text()));
-        TypeCodec<Object> bigIntCodec = CodecRegistry.DEFAULT_INSTANCE.codecFor(DataType.bigint());
+
+    private static UdtValue getValue(UserDefinedType userType, long isbn, String name, String author, Set<String> categories) {
+        UdtValue udtValue = userType.newValue();
+
+        TypeCodec<Object> bigIntCodec = CodecRegistry.DEFAULT.codecFor(userType.getFieldTypes().get(0));
+        TypeCodec<Object> textCodec = CodecRegistry.DEFAULT.codecFor(userType.getFieldTypes().get(1));
+        TypeCodec<Object> setCodec = CodecRegistry.DEFAULT.codecFor(userType.getFieldTypes().get(3));
         udtValue.set("isbn", isbn, bigIntCodec);
         udtValue.set("name", name, textCodec);
         udtValue.set("author", author, textCodec);
         udtValue.set("categories", categories, setCodec);
         return udtValue;
-    
+
+    }
+
+    private static Map<String, Term> createCondition(String name, Set<UdtValue> books) {
+        return Map.of("name", QueryBuilder.literal(name), "books", QueryBuilder.literal(books));
     }
 
 }
@@ -290,72 +331,83 @@ public class App4 {
     private static final String KEYSPACE = "library";
     private static final String TYPE = "book";
     private static final String COLUMN_FAMILY = "category";
-    private static final String[] NAMES = new String[] {"name", "books"};
-    
+
     public static void main(String[] args) {
-        try(Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()) {
-    
-            Session session = cluster.connect();
-    
-            UserType userType = session.getCluster().getMetadata().getKeyspace(KEYSPACE).getUserType(TYPE);
-            UDTValue cleanCode = getValue(userType, 1, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO", "Good practice", "Design"));
-            UDTValue cleanArchitecture = getValue(userType, 2, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("OO", "Good practice"));
-            UDTValue effectiveJava = getValue(userType, 3, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "OO", "Good practice"));
-            UDTValue nosql = getValue(userType, 4, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
-    
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, new Object[] {"Java", Sets.newHashSet(cleanCode, effectiveJava)}));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, new Object[] {"OO", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture)}));
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, new Object[] {"Good practice", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture, nosql)});
-            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY).values(NAMES, new Object[] {"NoSQL", Sets.newHashSet(nosql)}));
-    
-            Consumer<Row> log = row ->{
+        try (CqlSession session = CqlSession.builder().build()) {
+
+            UserDefinedType userType =
+                    session.getMetadata()
+                            .getKeyspace(KEYSPACE)
+                            .flatMap(ks -> ks.getUserDefinedType(TYPE))
+                            .orElseThrow(() -> new IllegalArgumentException("Missing UDT definition"));
+
+            UdtValue cleanCode = getValue(userType, 1, "Clean Code", "Robert Cecil Martin", Set.of("Java", "OO", "Good practice", "Design"));
+            UdtValue cleanArchitecture = getValue(userType, 2, "Clean Architecture", "Robert Cecil Martin", Set.of("OO", "Good practice"));
+            UdtValue effectiveJava = getValue(userType, 3, "Effective Java", "Joshua Bloch", Set.of("Java", "OO", "Good practice"));
+            UdtValue nosql = getValue(userType, 4, "Nosql Distilled", "Martin Fowler", Set.of("NoSQL", "Good practice"));
+
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY)
+                    .values(createCondition("Java", Set.of(cleanCode, effectiveJava))).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY)
+                    .values(createCondition("OO", Set.of(cleanCode, effectiveJava, cleanArchitecture))).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY)
+                    .values(createCondition("Good practice",
+                            Set.of(cleanCode, effectiveJava, cleanArchitecture, nosql))).build());
+            session.execute(QueryBuilder.insertInto(KEYSPACE, COLUMN_FAMILY)
+                    .values(createCondition("NoSQL", Set.of(nosql))).build());
+
+            Consumer<Row> log = row -> {
                 String name = row.getString("name");
-                Set<UDTValue> books = row.getSet("books", UDTValue.class);
+                Set<UdtValue> books = row.getSet("books", UdtValue.class);
                 Set<String> logBooks = new HashSet<>();
-                for(UDTValue book: books) {
+                for (UdtValue book : books) {
                     long isbn = book.getLong("isbn");
                     String bookName = book.getString("name");
                     String author = book.getString("author");
-                    logBooks.add(String.format("% d% s% s", isbn, bookName, author));
+                    logBooks.add(String.format(" %d %s %s", isbn, bookName, author));
                 }
-                System.out.println(String.format("The result% s% s", name, logBooks));
+                System.out.println(String.format("The result %s %s", name, logBooks));
             };
-    
+
             findById(session, "OO", log);
             findById(session, "Good practice", log);
             deleteById(session, "OO");
-    
-            PreparedStatement prepare = session.prepare("select * from library.category where name =?");
+
+            PreparedStatement prepare = session.prepare("select * from library.category where name = ?");
             BoundStatement statement = prepare.bind("Java");
             ResultSet resultSet = session.execute(statement);
             resultSet.forEach(log);
         }
-    
+
     }
-    
-    private static void findById(Session session, String name, Consumer<Row> log) {
-        ResultSet resultSet = session.execute(QueryBuilder.select().from(KEYSPACE, COLUMN_FAMILY) .where(QueryBuilder.eq("name", name)));
+
+    private static void findById(CqlSession session, String name, Consumer<Row> log) {
+        ResultSet resultSet = session.execute(QueryBuilder.selectFrom(KEYSPACE, COLUMN_FAMILY)
+                .all().where(Relation.column("name").isEqualTo(QueryBuilder.literal(name))).build());
         resultSet.forEach(log);
     }
-    
-    private static void deleteById(Session session, String name) {
-        session.execute(QueryBuilder.delete().from(KEYSPACE, COLUMN_FAMILY).where(QueryBuilder.eq("name", name)));
-    
+
+    private static void deleteById(CqlSession session, String name) {
+        session.execute(QueryBuilder.deleteFrom(KEYSPACE, COLUMN_FAMILY)
+                .where(Relation.column("name").isEqualTo(QueryBuilder.literal(name))).build());
+
     }
-    
-    private static UDTValue getValue(UserType userType, long isbn, String name, String author, Set <String>categories) {
-        UDTValue udtValue = userType.newValue();
-        TypeCodec<Object> textCodec = CodecRegistry.DEFAULT_INSTANCE.codecFor(DataType.text());
-        TypeCodec<Object> setCodec = CodecRegistry.DEFAULT_INSTANCE.codecFor(DataType.set(DataType.text()));
-        TypeCodec<Object> bigIntCodec = CodecRegistry.DEFAULT_INSTANCE.codecFor(DataType.bigint());
+
+    private static UdtValue getValue(UserDefinedType userType, long isbn, String name, String author, Set<String> categories) {
+        UdtValue udtValue = userType.newValue();
+        TypeCodec<Object> bigIntCodec = CodecRegistry.DEFAULT.codecFor(userType.getFieldTypes().get(0));
+        TypeCodec<Object> textCodec = CodecRegistry.DEFAULT.codecFor(userType.getFieldTypes().get(1));
+        TypeCodec<Object> setCodec = CodecRegistry.DEFAULT.codecFor(userType.getFieldTypes().get(3));
         udtValue.set("isbn", isbn, bigIntCodec);
         udtValue.set("name", name, textCodec);
         udtValue.set("author", author, textCodec);
         udtValue.set("categories", categories, setCodec);
         return udtValue;
-    
     }
 
+    private static Map<String, Term> createCondition(String name, Set<UdtValue> books) {
+        return Map.of("name", QueryBuilder.literal(name), "books", QueryBuilder.literal(books));
+    }
 }
 ```
 
