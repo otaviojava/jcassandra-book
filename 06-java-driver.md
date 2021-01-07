@@ -419,84 +419,141 @@ Is there any way to decrease the amount of code to work with Cassandra? The answ
 
 ## Using the Mapper
 
+For our first contact, the Mapper will be used, which is maintained by the same company that maintains the Driver. It is a layer above the Driver layer.
 
-For our first contact, the Mapper will be used, which is maintained by the same company that maintains the Driver. It is a layer above the Driver layer:
+The mapper generates the boilerplate to execute queries and convert the results into application-level objects.
+
+It is published as two artifacts:
+
+- the `java-driver-mapper-processor`module is **only needed in the compile classpath**, your application doesn’t need to depend on it at runtime.
+- the `java-driver-mapper-runtime` module is a regular runtime dependency.
+
+The mapper’s annotation processor hooks into the Java compiler, and generates additional source files from your annotated classes before the main compilation happens. It is contained in the `java-driver-mapper-processor` artifact.
+
+As a reminder, there is also a `java-driver-mapper-runtime` artifact, which contains the annotations and a few utility classes. This one is a regular dependency, and it is required at runtime.
 
 
 ```xml
+<dependencies>
 <dependency>
-    <groupId>com.datastax.cassandra</groupId>
-    <artifactId>cassandra-driver-mapping</artifactId>
-    <version>3.6.0</version>
+    <groupId>com.datastax.oss</groupId>
+    <artifactId>java-driver-mapper-runtime</artifactId>
+    <version>${data.stax.version}</version>
 </dependency>
+...
+<dependencies>
+
+<build>
+<plugins>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+            <source>11</source>
+            <target>11</target>
+            <annotationProcessorPaths>
+                <path>
+                    <groupId>com.datastax.oss</groupId>
+                    <artifactId>java-driver-mapper-processor</artifactId>
+                    <version>${data.stax.version}</version>
+                </path>
+            </annotationProcessorPaths>
+        </configuration>
+    </plugin>
+</plugins>
+</build>
 ```
 
 For the same example that performs the manipulation of the `Book` column family, the first step is mapping, which is nothing more than an entity whose attributes are noted. When you see the code, you can see that the annotations are very similar for those who came from the JPA world:
 
-* The annotation `Table` is to indicate that the class is a column family.
-* `Column` indicates that the field will be mapped to the database.
+* The annotation `Entity` is to indicate that the class is a column family.
 * `PartitionKey` indicates that that attribute plays a special role within the column family which is the primary key.
 
 
 ```java
-@Table(name = "book", keyspace = "library")
+@Entity
 public class Book {
 
     @PartitionKey
-    @Column
     private Long isbn;
-    
-    @Column
-    private String name;
-    
-    @Column
-    private String author;
-    
-    @Column
-    private Set <String>categories;
 
-// getter and setter
+    private String name;
+
+    private String author;
+
+    private Set<String> categories;
+
+    //getters and setters
 }
 ```
 
 In the first contact with Mapper, the code reduction is impressive. The highlight for this example are the two new classes that appear:
 
-`MappingManager` and `Mapper`, which serve both to manage instances and to facilitate communication between CQL and a Java object respectively.
+`BookDao` which serve both to manage instances and to facilitate communication between CQL and a Java object respectively.
 
-Now, let's delve even deeper, we still need to do a search for the key and also create dynamic queries with `PreparedStatement`.
+Now, let's delve even deeper, we still need to do a search for the key and also create dynamic queries with `BookDao`.
 
 ```java
+@Dao
+public interface BookDao {
+
+    @Select
+    Book findById(Long id);
+
+    @Insert
+    void save(Book book);
+
+    @Delete
+    void delete(Book book);
+
+    @Query("SELECT * FROM library.book")
+    PagingIterable<Book> map();
+
+    @Insert
+    CompletableFuture<Book> saveAsync(Book book);
+
+    @Select
+    CompletableFuture<Book> findByIdAsync(Long id);
+}
+
+
+@Mapper
+public interface InventoryMapper {
+    @DaoFactory
+    BookDao getBookDao(@DaoKeyspace CqlIdentifier keyspace);
+
+    @DaoFactory
+    CategoryDao getCategoryDao(@DaoKeyspace CqlIdentifier keyspace);
+}
+
+
 public class App {
 
     private static final String KEYSPACE = "library";
-    private static final String COLUMN_FAMILY = "book";
-    
+
     public static void main(String[] args) {
-        try(Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()) {
-    
-            Session session = cluster.connect();
-            MappingManager manager = new MappingManager(session);
-            Mapper<Book> mapper = manager.mapper(Book.class);
+        try (CqlSession session = CqlSession.builder().build()) {
 
+            InventoryMapper inventoryMapper = new InventoryMapperBuilder(session).build();
+            BookDao mapper = inventoryMapper.getBookDao(CqlIdentifier.fromCql(KEYSPACE));
+            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Set.of("Java", "OO"));
+            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Set.of("Good practice"));
+            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Set.of("Java", "Good practice"));
+            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Set.of("NoSQL", "Good practice"));
 
-            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
-            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
-            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
-            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
-    
             mapper.save(cleanCode);
             mapper.save(cleanArchitecture);
             mapper.save(effectiveJava);
             mapper.save(nosql);
-    
-            Result<Book> books = mapper.map(session.execute(QueryBuilder.select(). From(KEYSPACE, COLUMN_FAMILY)));
-            for(Book book: books) {
-                System.out.println("The result:" + book);
+
+            for (Book book : mapper.map()) {
+                System.out.println("The result: " + book);
             }
         }
-    
+
     }
-    
+
     private static Book getBook(long isbn, String name, String author, Set<String> categories) {
         Book book = new Book();
         book.setIsbn(isbn);
@@ -510,40 +567,34 @@ public class App {
 
 public class App2 {
 
+    private static final String KEYSPACE = "library";
 
     public static void main(String[] args) {
-        try(Cluster cluster = Cluster.builder(). addContactPoint("127.0.0.1"). build()) {
-    
-            Session session = cluster.connect();
-            MappingManager manager = new MappingManager(session);
-            Mapper<Book> mapper = manager.mapper(Book.class);
-    
-            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
-            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
-            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
-            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
-    
+        try (CqlSession session = CqlSession.builder().build()) {
+
+            InventoryMapper inventoryMapper = new InventoryMapperBuilder(session).build();
+            BookDao mapper = inventoryMapper.getBookDao(CqlIdentifier.fromCql(KEYSPACE));
+
+            Book cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Set.of("Java", "OO"));
+            Book cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Set.of("Good practice"));
+            Book effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Set.of("Java", "Good practice"));
+            Book nosql = getBook(4L, "Nosql Distilled", "Martin Fowler", Set.of("NoSQL", "Good practice"));
+
             mapper.save(cleanCode);
             mapper.save(cleanArchitecture);
             mapper.save(effectiveJava);
             mapper.save(nosql);
 
+            Book book = mapper.findById(1L);
+            System.out.println("Book found: " + book);
 
-            Book book = mapper.get(1L);
-            System.out.println("Book found:" + book);
-    
             mapper.delete(book);
-    
-            System.out.println("Book found:" + mapper.get(1L));
-    
-            PreparedStatement prepare = session.prepare("select * from library.book where isbn =?");
-            BoundStatement statement = prepare.bind(2L);
-            Result<Book> books = mapper.map(session.execute(statement));
-            StreamSupport.stream(books.spliterator(), false).forEach(System.out::println);
+            System.out.println("Book found: " + mapper.findById(1L));
+
         }
-    
+
     }
-    
+
     private static Book getBook(long isbn, String name, String author, Set<String> categories) {
         Book book = new Book();
         book.setIsbn(isbn);
@@ -556,42 +607,55 @@ public class App2 {
 }
 ```
 
-Our code creates four types of books and persists within the database. Then, search for the key and, finally, create a query with `PreparedStatement` and execute it without worrying about the conversion to our `Book` entity.
+Our code creates four types of books and persists within the database. Then, search for the key and, finally, create a query with `BookDao` and execute it without worrying about the conversion to our `Book` entity.
 
 But we will not stop there. We will now create an interaction with the `UDT` types within the `category` column family.
 
 
 ```java
-@Table(name = "category", keyspace = "library")
+@Entity
 public class Category {
 
     @PartitionKey
-    @Column
     private String name;
-    
-    @Frozen
+
     private Set<BookType> books;
- // getter and setter
+
+    //getters and setters
+
 }
 
-@UDT(name = "book", keyspace = "library")
+@Entity
 public class BookType {
 
-    @Field
     private Long isbn;
-    
-    @Field
+
     private String name;
-    
-    @Field
+
     private String author;
-    
-    @Field
+
     private Set<String> categories;
 
-// getter and setter
+    //getters and setters
+}
+
+@Dao
+public interface CategoryDao {
+
+    @Select
+    Category findById(String id);
+
+    @Insert
+    void save(Category book);
+
+    @Delete
+    void delete(Category book);
+
+    @Query("SELECT * FROM library.category")
+    PagingIterable<Category> map();
 
 }
+
 ```
 
 
@@ -601,45 +665,41 @@ Modeling created and ready for interaction in the database with the `UDT` type t
 public class App3 {
 
     private static final String KEYSPACE = "library";
-    private static final String COLUMN_FAMILY = "category";
-    
-    public static void main(String[] args) {
-        try(Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()) {
-    
-            Session session = cluster.connect();
-            MappingManager manager = new MappingManager(session);
-            Mapper <Category>mapper = manager.mapper(Category.class);
-    
-            BookType cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Sets.newHashSet("Java", "OO"));
-            BookType cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Sets.newHashSet("Good practice"));
-            BookType effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Sets.newHashSet("Java", "Good practice"));
-            BookType nosqlDistilled = getBook(4L, "Nosql Distilled", "Martin Fowler", Sets.newHashSet("NoSQL", "Good practice"));
 
+    public static void main(String[] args) {
+        try (CqlSession session = CqlSession.builder().build()) {
+
+            InventoryMapper inventoryMapper = new InventoryMapperBuilder(session).build();
+            CategoryDao mapper = inventoryMapper.getCategoryDao(CqlIdentifier.fromCql(KEYSPACE));
+
+            BookType cleanCode = getBook(1L, "Clean Code", "Robert Cecil Martin", Set.of("Java", "OO"));
+            BookType cleanArchitecture = getBook(2L, "Clean Architecture", "Robert Cecil Martin", Set.of("Good practice"));
+            BookType effectiveJava = getBook(3L, "Effective Java", "Joshua Bloch", Set.of("Java", "Good practice"));
+            BookType nosqlDistilled = getBook(4L, "Nosql Distilled", "Martin Fowler", Set.of("NoSQL", "Good practice"));
 
             Category java = getCategory("Java", Sets.newHashSet(cleanCode, effectiveJava));
             Category oo = getCategory("OO", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture));
             Category goodPractice = getCategory("Good practice", Sets.newHashSet(cleanCode, effectiveJava, cleanArchitecture, nosqlDistilled));
             Category nosql = getCategory("NoSQL", Sets.newHashSet(nosqlDistilled));
-    
+
             mapper.save(java);
             mapper.save(oo);
             mapper.save(goodPractice);
             mapper.save(nosql);
-    
-            ResultSet resultSet = session.execute(QueryBuilder.select().from(KEYSPACE, COLUMN_FAMILY));
-            Result<Category> categories = mapper.map(resultSet);
+
+            PagingIterable<Category> categories = mapper.map();
             StreamSupport.stream(categories.spliterator(), false).forEach(System.out::println);
         }
-    
+
     }
-    
+
     private static Category getCategory(String name, Set<BookType> books) {
         Category category = new Category();
         category.setName(name);
         category.setBooks(books);
         return category;
     }
-    
+
     private static BookType getBook(long isbn, String name, String author, Set<String> categories) {
         BookType book = new BookType();
         book.setIsbn(isbn);
@@ -648,62 +708,14 @@ public class App3 {
         book.setCategories(categories);
         return book;
     }
-
 }
 ```
 
 The code is very similar to the interaction of the Book class, the only exception is the use of the `Category.class` as a parameter inside the `mapper`, and instances of type `Category` will be created for the persistence of the information.
 
 
-> In Mapper, there are methods with the suffix `Async` that will perform operations asynchronously for the developer. The book will not cover all the features of Mapper, so for more information see the documentation:
-> https://docs.datastax.com/en/developer/java-driver/3.6/manual/object_mapper/.
 
-
-Impressed by the power of the Mapper? That is not all, it is also possible to create advisory interfaces that aim to read and write from Cassandra without much code. It is composed of the annotation Query that has the CQL that will be executed when the method is called, as it will be displayed with an interface that will perform operations in the `Book`. The icing on the cake is to define this interface as advisors, for that, it is necessary to add the annotation `Accessor` in it.
-
-
-```java
-@Accessor
-public interface BookAccessor {
-
-    @Query("SELECT * FROM library.book")
-    Result<Book> getAll();
-
-
-    @Query("SELECT * FROM library.book where isbn =?")
-    Book findById(long isbn);
-    
-    @Query("SELECT * FROM library.book where isbn =: isbn")
-    Book findById2(@Param("isbn") long isbn);
-
-}
-```
-
-An important point is that we don't have to worry about implementation, everything will be managed by Mapper automatically without the developer worrying about it.
-
-```java
-public class App6 {
-
-    public static void main(String[] args) throws Exception {
-        try(Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()) {
-    
-            Session session = cluster.connect();
-            MappingManager manager = new MappingManager(session);
-            BookAccessor bookAccessor = manager.createAccessor(BookAccessor.class);
-    
-            Result <Book>all = bookAccessor.getAll();
-            StreamSupport.stream(all.spliterator(), false).forEach(System.out::println);
-    
-            Book book = bookAccessor.findById(1L);
-            Book book2 = bookAccessor.findById(2L);
-            System.out.println(book);
-            System.out.println(book2);
-        }
-    
-    }
-
-}
-```
+> You can use this mapper integrated with Quarkus, take look at this link: [https://quarkus.io/guides/cassandra](https://quarkus.io/guides/cassandra)
 
 ### Conclusion
 
