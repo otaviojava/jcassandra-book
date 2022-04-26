@@ -14,7 +14,7 @@ One of the big changes in the Java EE world is that in 2017 it was donated to th
 However, the right to the name Java was not given, so it was not possible to continue calling it “Java EE”. With that, a poll was held inside the community and they elected the new name: `Jakara EE` in addition to the new logo.
 So, in general, Jakarta EE is just the new home of Java EE.
 
-![The Jakarta EE Logo](imagens/jakartaee.png)
+![The Jakarta EE Logo](jakartaee.png)
 
 As a premise, under a new direction with the Eclipse Foundation, Jakarta EE will maintain compatibility with the latest version of Java EE, version 8, in addition to bringing news to the platform. One of the important points is that, to bring more news to the platform, a new cycle is being created to specify the famous JSRs, with the main focus on facilitating development, making fast deliveries, and receiving feedbacks in faster ways from the community. As a first specification, Eclipse JNoSQL was created, whose focus is on integrating NoSQL and Java databases.
 
@@ -28,7 +28,7 @@ The project has two layers:
 
 2. **Mapping layer**: API that helps the developer to integrate with the non-relational database, being oriented to annotations and using technologies such as dependency injection and Bean Validation, which makes it simple for developers to use. Comparing with the classic RDBMS, this layer can be compared with JPA or other mapping frameworks like Hibernate.
 
-![Eclipse JNoSQL architecture](imagens/jnosql.png)
+![Eclipse JNoSQL architecture](jnosql.png)
 
 
 As with Spring Data, Jakarta NoSQL works in conjunction with a dependency injection engine, however, the CDI specification is used in the project. Using the same principle, we will start with the codes and configuration files that are necessary to make the CDI container lift, in addition to communicating with Cassandra.

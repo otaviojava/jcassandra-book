@@ -11,14 +11,14 @@ This chapter will aim to talk a little about this language.
 Our first stop at CQL is the creation of the largest structure within Cassandra's hierarchy, *keyspace*. It is during the creation of the keyspace that the replication strategy and the replication factor for the data are defined. The creation template is shown below:
 
 ```sql
-create_keyspace_statement ::= CREATE KEYSPACE [IF NOT EXISTS] keyspace_name WITH options
+create_keyspace_statement :: = CREATE KEYSPACE [IF NOT EXISTS] keyspace_name WITH options
 ```
 
 For example, when creating a keyspace of `library`, bookstore in English:
 
 ```sql
 CREATE KEYSPACE library WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
-//or
+// or
 CREATE KEYSPACE library
            WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': 1, 'DC2': 3}
             AND durable_writes = false;
@@ -38,26 +38,26 @@ cqlsh> select * from system_schema.keyspaces where keyspace_name = 'library';
 (1 rows)
 ```
 
-To make any changes to the keyspace created, it is necessary to use the `alter keyspace`. The template is shown below:
+To make any changes to the keyspace created, it is necessary to use the **alter keyspace**. The template is shown below:
 
 ```sql
-alter_keyspace_statement ::= ALTER KEYSPACE keyspace_name WITH options
+alter_keyspace_statement :: = ALTER KEYSPACE keyspace_name WITH options
 ```
 
 For example, changing the keyspace created earlier:
 
 
 ```sql
-ALTER KEYSPACE library WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 4};
+ALTER KEYSPACE Excelsior WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 4};
 ```
 
-It is also possible to remove the keyspace with the `drop keyspace`, in our example:
+It is also possible to remove the keyspace with the **drop keyspace**, in our example:
 
 ```sql
 DROP KEYSPACE library;
 ```
 
-If the user tries to create or remove the same table more than once, an error message is generated. For example, `Keyspace 'library' already exists or ConfigurationException: Cannot drop non-existing keyspace 'library'`, to create or remove respectively. One way to avoid such an error is to make this change only if it makes sense: just create it if it doesn't exist or only remove it if it exists. For this purpose, the syntax supports this condition:
+If the user tries to create or remove the same table more than once, an error message is generated. For example, `Keyspace 'library' already exists or ConfigurationException: Cannot drop non-existing keyspace 'library'`. to create or remove respectively. One way to avoid such an error is to make this change only if it makes sense: just create it if it doesn't exist or only remove it if it exists. For this purpose, the syntax supports this condition:
 
 
 ```sql
@@ -70,21 +70,21 @@ CREATE KEYSPACE IF NOT EXISTS library WITH replication = {'class': 'SimpleStrate
 The creation of the column family is similar to the creation of the table, that is, it is where the fields are defined, *partition key*, *clustering key*, the index, and more settings. Just use the `CREATE TABLE` template:
 
 ```sql
-create_table_statement ::= CREATE TABLE [IF NOT EXISTS] table_name
+create_table_statement :: = CREATE TABLE [IF NOT EXISTS] table_name
                             '('
                                 column_definition
                                 (',' column_definition) *
                                 [',' PRIMARY KEY '(' primary_key ')']
                             ')' [WITH table_options]
-column_definition ::= column_name cql_type [STATIC] [PRIMARY KEY]
-primary_key ::= partition_key [',' clustering_columns]
-partition_key ::= column_name
+column_definition :: = column_name cql_type [STATIC] [PRIMARY KEY]
+primary_key :: = partition_key [',' clustering_columns]
+partition_key :: = column_name
                             | '(' column_name (',' column_name) * ')'
-clustering_columns ::= column_name (',' column_name) *
-table_options ::= COMPACT STORAGE [AND table_options]
+clustering_columns :: = column_name (',' column_name) *
+table_options :: = COMPACT STORAGE [AND table_options]
                             | CLUSTERING ORDER BY '(' clustering_order ')' [AND table_options]
                             | options
-clustering_order ::= column_name (ASC | DESC) (',' column_name (ASC | DESC)) *
+clustering_order :: = column_name (ASC | DESC) (',' column_name (ASC | DESC)) *
 ```
 
 Since the keyspace `library` was created, the next step is to create the book column `family, book`:
@@ -103,8 +103,8 @@ CREATE TABLE library.book (
 It is also possible to make changes to the column family, for example, to add or remove a field within it. For this, it is necessary to use the following template:
 
 ```sql
-alter_table_statement ::= ALTER TABLE table_name alter_table_instruction
-alter_table_instruction ::= ADD column_name cql_type (',' column_name cql_type) *
+alter_table_statement :: = ALTER TABLE table_name alter_table_instruction
+alter_table_instruction :: = ADD column_name cql_type (',' column_name cql_type) *
                              | DROP column_name (column_name) *
                              | WITH options
 ```
@@ -124,7 +124,7 @@ ALTER TABLE library.book DROP author;
 It is also possible to destroy the newly created structure.
 
 ```sql
-drop_table_statement ::= DROP TABLE [IF EXISTS] table_name
+drop_table_statement :: = DROP TABLE [IF EXISTS] table_name
 ```
 
 In our example:
@@ -136,7 +136,7 @@ DROP TABLE IF EXISTS library.book;
 There are cases where the goal is not to destroy the structure, but to remove all content and maintain the structure. For this, it is possible to truncate the column family, with the command `TRUNCATE`.
 
 ```sql
-truncate_statement ::= TRUNCATE [TABLE] table_name
+truncate_statement :: = TRUNCATE [TABLE] table_name
 ```
 
 
@@ -178,7 +178,7 @@ cqlsh> SELECT * FROM library.book;
 
 ### Primary key
 
-Within the column family, the primary key is the single field and all column families **must** define it. It is using this field that the data will be queried, so there is an initial concern with it. The primary key can consist of more than one field, however, it will have a different concept than the relational database. It will be divided into two parts:
+Within the column family, the primary key (*primary key*) is the single field and all column families **must** define it. It is from this field that the data will be recovered, so there is an initial concern with it. The primary key can consist of more than one field, however, it will have a different concept than the relational bank. It will be divided into two parts:
 
 * The **partition key**: it is the first part of the primary key that is responsible for the distribution of data through the nodes.
 
@@ -261,7 +261,7 @@ cqlsh> SELECT * FROM library.author WHERE book = 'Clean Architecture';
 InvalidRequest: Error from server: code = 2200 [Invalid query] message = "Cannot execute this query as it might involve data filtering and thus may have unpredictable performance. If you want to execute this query despite the unpredictability performance, use ALLOW FILTERING"
 ```
 
-As the error message shows, the only way to execute the query is to add the command `ALLOW FILTERING`, however, this will have serious performance consequences. The way Cassandra executes this command is by retrieving all the lines and then filtering for those that do not have the condition value. For example, in a family of columns that has a million rows and 98% of them have the query condition, this will be relatively efficient. However, imagine the case where only one line meets the condition. Cassandra will have traversed 999999 elements linearly and inefficiently to just return one.
+As the error message shows, the only way to execute the query is to add the command `ALLOW FILTERING`, however, this will have serious performance consequences. The way Cassandra executes this command is to retrieve all the lines and then filter for those that do not have the condition value. For example, in a family of columns that has a million rows and 98% of them have the query condition, this will be relatively efficient. However, imagine the case where only one line meets the condition. Cassandra will have traversed 999999 elements linearly and inefficiently to just return one.
 
 
 ```sql
@@ -285,7 +285,7 @@ name | book | year
 
 ### Static types
 
-Some columns can be considered static within the column family. A static column shares the same value for all rows that have the same partition key value. For example, in the author column family scenario (with name and book), imagine that there is now the need to add the field for “country of residence”. Once the author changes countries, all references must be updated as well, thus creating the country field, `country`, as static, shown below:
+Some columns can be considered static within the column family. A static column shares the same value for all rows that have the same partition key value. For example, in the author column family scenario (with name and book), imagine that there is now a desire to add the field for “country of residence”. Once the author changes countries, all references must be updated as well, thus creating the country field, `country`, as static, shown below:
 
 
 Creating the `author` structure now with the static country field:
@@ -327,7 +327,7 @@ cqlsh> SELECT * FROM library.author;
 There is another option to search the table information in addition to the primary key, which is the secondary index. It allows the search for information without generating the `ALLOW FILTERING` error. Your template is shown below:
 
 ```sql
-index_name ::= re('[a-zA-Z_0-9] +')
+index_name :: = re ('[a-zA-Z_0-9] +')
 ```
 
 For example, to perform a search for the year field, year, in the column family of authors it is possible to execute the following command:
@@ -351,7 +351,7 @@ cqlsh> SELECT * FROM library.author where year = 2005;
 It is also possible to remove the index created with `DROP INDEX`:
 
 ```sql
-drop_index_statement ::= DROP INDEX [IF EXISTS] index_name
+drop_index_statement :: = DROP INDEX [IF EXISTS] index_name
 ```
 
 In our example:
@@ -371,8 +371,8 @@ If a query is based on a secondary index, it will not have the same efficiency a
 
 There are some good practices when using indexes, which are:
 
-* **Do not** use it when there is a high degree of cardinality;
-* **Do not** use it in fields that are updated with a high frequency.
+* **Do not** use when there is a high degree of cardinality
+* **Do not** use in fields that are updated with a high frequency
 
 
 ## Types in Cassandra
@@ -382,7 +382,7 @@ Within a family of columns, each field has a type that defines how the field wil
 * Native types
 * Collection types
 * Tuples
-* User-Defined type (UDT)
+* User-defined-type UDT
 
 
 ### Native types
@@ -419,7 +419,7 @@ The native types are those that Cassandra already supports and it is not necessa
 Within Cassandra, there is support for three types of collections that follow the same line of the Java world. These collections fit perfectly when it is necessary to have a field that has a set of items, for example, the telephone or contact list.
 
 ```sql
-collection_type ::= MAP '<' cql_type ',' cql_type '>'
+collection_type :: = MAP '<' cql_type ',' cql_type '>'
                      | SET '<' cql_type '>'
                      | LIST '<' cql_type '>'
 ```
@@ -444,7 +444,7 @@ cqlsh> SELECT * FROM library.reader;
 
  name | books
 --------- + ---------------------------------------- --------
-   David | ['Clean Code', 'Effective Java', 'Clean Code']
+   David | ['Clean Code', 'Effectove Java', 'Clean Code']
  Poliana | ['The Shack', 'The Love', 'Clean Code']
 
 (2 rows)
@@ -454,7 +454,7 @@ cqlsh> SELECT * FROM library.reader;
 Within the list, it is possible to perform several options, for example, add one or more elements, replace a single item, as shown in the code:
 
 ```sql
-//repleace
+// repleace
 cqlsh> UPDATE library.reader SET books = ['Java EE 8'] WHERE name = 'David';
 cqlsh> SELECT * FROM library.reader where name = 'David';
 
@@ -462,15 +462,15 @@ cqlsh> SELECT * FROM library.reader where name = 'David';
 --------- + ---------------------------------------- -
    David | ['Java EE 8']
 
-//appending
+// appending
 UPDATE library.reader SET books = books + ['Clean Code'] WHERE name = 'David';
 cqlsh> SELECT * FROM library.reader where name = 'David';
  name | books
 ------- + -----------------------------
  David | ['Java EE 8', 'Clean Code']
 
-//update an element
-UPDATE library.reader SET books[1] = 'Clean Architecture' WHERE name = 'David';
+// update an element
+UPDATE library.reader SET books [1] = 'Clean Architecture' WHERE name = 'David';
 cqlsh> SELECT * FROM library.reader where name = 'David';
  name | books
 ------- + -------------------------------------
@@ -481,7 +481,7 @@ cqlsh> SELECT * FROM library.reader where name = 'David';
 It is also possible to remove elements with `DELETE` and `UPDATE`.
 
 ```sql
-DELETE books[1] FROM library.reader where name = 'David';
+DELETE books [1] FROM library.reader where name = 'David';
 cqlsh> SELECT * FROM library.reader WHERE name = 'David';
 
  name | books
@@ -498,9 +498,9 @@ cqlsh> SELECT * FROM library.reader WHERE name = 'David';
 
 ### Set
 
-Set is similar to List, however, it does not allow duplicate values. Thus, the same example mentioned above, but with Set, would be like the ones below.
+Set is similar to List, however, it does not allow duplicate values. Thus, the same example mentioned above, but with Set, would be:
 
-Creation of the column family of readers (this time, it is possible to see that the duplicated book “Clean Code” by reader “David” will not appear twice).
+Creation of the column family of readers (this time, it is possible to see that the book “Clean Code” by reader “David” will not appear).
 
 ```sql
 DROP TABLE IF EXISTS library.reader;
@@ -512,7 +512,7 @@ CREATE TABLE IF NOT EXISTS library.reader (
 );
 
 INSERT INTO library.reader (name, books) VALUES ('Poliana', {'The Shack', 'The Love', 'Clean Code'});
-INSERT INTO library.reader (name, books) VALUES ('David', {'Clean Code', 'Effective Java', 'Clean Code'});
+INSERT INTO library.reader (name, books) VALUES ('David', {'Clean Code', 'Effectove Java', 'Clean Code'});
 
 cqlsh> SELECT * FROM library.reader;
 
@@ -529,7 +529,7 @@ Within the Set it is possible to either replace the current collection or add ne
 
 
 ```sql
-//repleace
+// repleace
 cqlsh> UPDATE library.reader SET books = {'Java EE 8'} WHERE name = 'David';
 cqlsh> SELECT * FROM library.reader where name = 'David';
 
@@ -537,7 +537,7 @@ cqlsh> SELECT * FROM library.reader where name = 'David';
 --------- + ---------------------------------------- -
    David | {'Java EE 8'}
 
-//appending
+// appending
 UPDATE library.reader SET books = books + {'Clean Code'} WHERE name = 'David';
 cqlsh> SELECT * FROM library.reader where name = 'David';
  name | books
@@ -579,32 +579,32 @@ cqlsh> SELECT * FROM library.reader;
 As with previous collections, you can make changes:
 
 ```sql
-//to update a key element
+// to update a key element
 UPDATE library.reader SET contacts ['twitter'] = 'fakeaccount' WHERE name = 'Poliana';
 cqlsh> SELECT * from library.reader where name = 'Poliana';
 
  name | books | contacts
 --------- + ---------------------------------------- - + ------------------------------------------------ -------------------------------------------------- -------------------
  Poliana | {'Clean Code', 'The Love', 'The Shack'} | {'email': 'poliana@email.com', 'facebook': 'polianafacebook', 'phone': '+1 55 486848635', 'twitter': 'fakeaccount'}
-//to append a new entry
+// to append a new entry
 UPDATE library.reader SET contacts = contacts + {'youtube': 'youtubeaccount'} WHERE name = 'Poliana';
 cqlsh> SELECT * from library.reader where name = 'Poliana';
  name | books | contacts
 --------- + ---------------------------------------- - + ------------------------------------------------ -------------------------------------------------- ------------------------------------------------
  Poliana | {'Clean Code', 'The Love', 'The Shack'} | {'email': 'poliana@email.com', 'facebook': 'polianafacebook', 'phone': '+1 55 486848635', 'twitter': 'fakeaccount', 'youtube': 'youtubeaccount'}
-//remove an element
+// remove an element
 DELETE contacts ['youtube'] FROM library.reader where name = 'Poliana';
 cqlsh> SELECT * from library.reader where name = 'Poliana';
  name | books | contacts
 --------- + ---------------------------------------- - + ------------------------------------------------ -------------------------------------------------- -------------------
  Poliana | {'Clean Code', 'The Love', 'The Shack'} | {'email': 'poliana@email.com', 'facebook': 'polianafacebook', 'phone': '+1 55 486848635', 'twitter': 'fakeaccount'}
-//to remove elements by the key
+// to remove elements by the key
 UPDATE library.reader SET contacts = contacts - {'youtube', 'twitter'} WHERE name = 'Poliana';
 cqlsh> SELECT * from library.reader where name = 'Poliana';
  name | books | contacts
 --------- + ---------------------------------------- - + ------------------------------------------------ -------------------------------------------
  Poliana | {'Clean Code', 'The Love', 'The Shack'} | {'email': 'poliana@email.com', 'facebook': 'polianafacebook', 'phone': '+1 55 486848635'}
-//to repleace the whole map
+// to repleace the whole map
 UPDATE library.reader SET contacts = {'email': 'just@email.com'} WHERE name = 'Poliana';
 cqlsh> SELECT * from library.reader where name = 'Poliana';
  name | books | contacts
@@ -619,8 +619,8 @@ cqlsh> SELECT * from library.reader where name = 'Poliana';
 A tuple is a combination of key and value. For the Java world, it is similar to `java.util.Map.Entry`. Its creation structure is:
 
 ```sql
-tuple_type ::= TUPLE '<' cql_type (',' cql_type) * '>'
-tuple_literal ::= '(' term (',' term) * ')'
+tuple_type :: = TUPLE '<' cql_type (',' cql_type) * '>'
+tuple_literal :: = '(' term (',' term) * ')'
 ```
 
 For this example, we will use the same column family of readers, however, we will assume that only a single piece of contact information, regardless of which one, is sufficient. Like this:
@@ -651,9 +651,9 @@ cqlsh> SELECT * FROM library.reader;
 User-Defined Types, or just UDT, is a data type created by the user. This type is created from a keyspace and follows the same principle as a column family, that is, it will be possible to create, change, and drop a `UDT`.
 
 ```sql
-create_type_statement ::= CREATE TYPE [IF NOT EXISTS] udt_name
+create_type_statement :: = CREATE TYPE [IF NOT EXISTS] udt_name
                                '(' field_definition (',' field_definition) * ')'
-field_definition ::= identifier cql_type
+field_definition :: = identifier cql_type
 ```
 
 Just like the native type, to be used, it is necessary to define it within a column family. For example, for the information of a library user, the first and last names are required.
@@ -703,7 +703,7 @@ cqlsh> SELECT * FROM library.user;
 It is also possible to remove the UDT as `DROP UDT`.
 
 ```sql
-drop_type_statement ::= DROP TYPE [IF EXISTS] udt_name
+drop_type_statement :: = DROP TYPE [IF EXISTS] udt_name
 ```
 
 For example, when removing the column family name field:
@@ -744,7 +744,7 @@ In this section we will deal with data manipulation, it will be possible to use 
 `SELECT` is the type of command used to retrieve data information.
 
 ```sql
-select_statement ::= SELECT [JSON | DISTINCT] (select_clause | '*')
+select_statement :: = SELECT [JSON | DISTINCT] (select_clause | '*')
                       FROM table_name
                       [WHERE where_clause]
                       [GROUP BY group_by_clause]
@@ -752,19 +752,19 @@ select_statement ::= SELECT [JSON | DISTINCT] (select_clause | '*')
                       [PER PARTITION LIMIT (integer | bind_marker)]
                       [LIMIT (integer | bind_marker)]
                       [ALLOW FILTERING]
-select_clause ::= selector [AS identifier] (',' selector [AS identifier])
-selector ::= column_name
+select_clause :: = selector [AS identifier] (',' selector [AS identifier])
+selector :: = column_name
                       | term
                       | CAST '(' selector AS cql_type ')'
                       | function_name '(' [selector (',' selector) *] ')'
                       | COUNT '(' '*' ')'
-where_clause ::= relation (AND relation) *
-relation ::= column_name operator term
+where_clause :: = relation (AND relation) *
+relation :: = column_name operator term
                       '(' column_name (',' column_name) * ')' operator tuple_literal
                       TOKEN '(' column_name (',' column_name) * ')' operator term
-operator ::= '=' | '<' | '>' | '<=' | '> =' | '! =' | IN | CONTAINS | CONTAINS KEY
-group_by_clause ::= column_name (',' column_name) *
-ordering_clause ::= column_name [ASC | DESC] (',' column_name [ASC | DESC]) *
+operator :: = '=' | '<' | '>' | '<=' | '> =' | '! =' | IN | CONTAINS | CONTAINS KEY
+group_by_clause :: = column_name (',' column_name) *
+ordering_clause :: = column_name [ASC | DESC] (',' column_name [ASC | DESC]) *
 ```
 
 For example, in the bookstore, a family of magazine type columns will be added that will have the list of articles and the year of the post.
@@ -802,7 +802,7 @@ cqlsh> SELECT id, posted_at FROM library.magazine;
  Java Magazine | 2017-01-01 00: 00: 00.000000 + 0000
  Java Magazine | 2018-01-01 00: 00: 00.000000 + 0000
 
-cqlsh> SELECT count(*) FROM library.magazine;
+cqlsh> SELECT count (*) FROM library.magazine;
 
  count
 -------
@@ -815,20 +815,20 @@ Within Cassandra, there are also some value aggregation queries, with the keywor
 ```sql
 cqlsh> SELECT id, max (pages) FROM library.magazine GROUP BY id;
 
- id | system.max(pages)
+ id | system.max (pages)
 --------------- + -------------------
  Java Magazine | 140
 
 cqlsh> SELECT id, min (pages) FROM library.magazine GROUP BY id;
 
-  id | system.min(pages)
+  id | system.min (pages)
  --------------- + -------------------
   Java Magazine | 100
 
 
 cqlsh> SELECT id, sum (pages) FROM library.magazine GROUP BY id;
 
- id | system.sum(pages)
+ id | system.sum (pages)
 --------------- + -------------------
  Java Magazine | 240
 
@@ -845,7 +845,7 @@ cqlsh> SELECT * FROM library.magazine LIMIT 1;
  Java Magazine | 2017-01-01 00: 00: 00.000000 + 0000 | {'Java 7', 'Java EE 8', 'NoSQL'} | 100
 ```
 
-The ordering of the data is done from the `ORDER BY`, however, it is not as powerful as in the relational databases since the ordering is only performed by key type fields.
+The ordering of the data is done from the `ORDER BY`, however, it is not as powerful as in the relational banks since the ordering is only performed by key type fields.
 
 ```sql
  SELECT * FROM library.magazine where id = 'Java Magazine' ORDER BY posted_at DESC;
@@ -892,12 +892,12 @@ cqlsh> SELECT JSON id, pages FROM library.magazine;
 Within the `INSERT` clause, it is possible to insert a row within the column family.
 
 ```sql
-insert_statement ::= INSERT INTO table_name (names_values | json_clause)
+insert_statement :: = INSERT INTO table_name (names_values | json_clause)
                       [IF NOT EXISTS]
                       [USING update_parameter (AND update_parameter) *]
-names_values ::= names VALUES tuple_literal
-json_clause ::= JSON string [DEFAULT (NULL | UNSET)]
-names ::= '(' column_name (',' column_name) * ')'
+names_values :: = names VALUES tuple_literal
+json_clause :: = JSON string [DEFAULT (NULL | UNSET)]
+names :: = '(' column_name (',' column_name) * ')'
 ```
 
 To insert the data using the `INSERT` clause, it is possible to use it both in a very similar way to SQL and as JSON. For example, using the previous magazine column family.
@@ -935,7 +935,7 @@ cqlsh> SELECT * FROM library.magazine WHERE id = 'Java Magazine';
  id | posted_at | articles | pages
 --------------- + --------------------------------- + ---------- + -------
  Java Magazine | 2017-01-01 00: 00: 00.000000 + 0000 | null | null
-//wait 10 seconds
+// wait 10 seconds
 cqlsh> SELECT * FROM library.magazine WHERE id = 'Java Magazine';
  id | posted_at | articles | pages
 ---- + ----------- + ---------- + -------
@@ -977,7 +977,7 @@ cqlsh> SELECT * FROM library.librarian where id = 'daniel';
  id | name
 -------- + --------
  daniel | Daniel
-//wait 10 seconds
+// wait 10 seconds
 cqlsh> SELECT * FROM library.librarian where id = 'daniel';
 
  id | name
@@ -1038,17 +1038,17 @@ cqlsh> SELECT * FROM library.librarian;
 It's important make sure that:
 
 * `BATCH` can only contain INSERT, UPDATE and DELETE;
-* `BATCH` commands are not fully supported by the transaction like relational databases;
+* `BATCH` commands are not fully supported by the transaction like relational banks;
 * All operations belong to _partition key_ to guarantee isolation;
 * By default, operations within `BATCH` will be atomic, so operations will eventually be complete or no operations will take place.
-* There is a big *trade-off* in the use of `BATCH`:  it can save network in the communication between the coordinating node and the other nodes for operations, on the other hand, it can use a node for several operations, hence the importance of knowing how to use this feature sparingly.
+* There is a big *trade-off* in the use of `BATCH`: on the one hand, it can save network in the communication between the coordinating node and the other nodes for operations, on the other hand, it can use a node for several operations, hence the importance of know how to use this feature sparingly.
 
 ```sql
-batch_statement ::= BEGIN [UNLOGGED | COUNTER] BATCH
+batch_statement :: = BEGIN [UNLOGGED | COUNTER] BATCH
                             [USING update_parameter (AND update_parameter) *]
                             modification_statement (';' modification_statement) *
                             APPLY BATCH
-modification_statement ::= insert_statement | update_statement | delete_statement
+modification_statement :: = insert_statement | update_statement | delete_statement
 ```
 
 For example, to perform operations within the column family of librarians.
@@ -1078,13 +1078,13 @@ Denormalization is the best friend of non-relational databases, and with Cassand
 
 
 ```sql
-create_materialized_view_statement ::= CREATE MATERIALIZED VIEW [IF NOT EXISTS] view_name AS
+create_materialized_view_statement :: = CREATE MATERIALIZED VIEW [IF NOT EXISTS] view_name AS
                                             select_statement
                                             PRIMARY KEY '(' primary_key ')'
                                             WITH table_options
 ```
 
-For example, considering the case of the book again and the ISBN (International Standard Book Number) - the code that employees use to borrow a book within the library - it would be possible to create the column family as follows:
+For example, considering the case of the book again and the ISBN (International Standard Book Number) is the code that employees use to borrow a book within the library, it would be possible to create the column family as follows:
 
 ```sql
 DROP COLUMNFAMILY IF EXISTS library.book;
@@ -1138,21 +1138,20 @@ DROP MATERIALIZED VIEW library.recent_book;
 ```
 
 
-> So far, the materialized view resource is an experimental feature.
+> So far, the materialized view resource is on an experimental basis
 
 ## Safety
 
 
-Cassandra has important support for security features. Thus, it is possible to define permission, create user, create rules, remove permission, among others. The first step in implementing this in the project is to enable the security feature by Cassandra. For that, it is necessary to make a change inside `cassandra.yaml`, inside the `conf` folder: change the line `authenticator: AllowAllAuthenticator` to `authenticator: PasswordAuthenticator`.
+Cassandra has important support for the security feature. Thus, it is possible to define permission, create user, create rules, remove permission, among others. The first step in applying this to the project is to enable the security feature by Cassandra. For that, it is necessary to make a change inside `cassandra.yaml`, inside the `conf` folder: change the line `authenticator: AllowAllAuthenticator` to `authenticator: PasswordAuthenticator`.
 
 
 If you are using Docker, the solution would be to map the configuration location. Like this:
 
 ```bash
-docker run --name some-cassandra -p 9042:9042 -v /my/own/datadir:/var/lib/cassandra -v /path/to/config/cassandra.yaml:/etc/cassandra/cassandra.yaml -d cassandra
-
-//sample
-docker run --name some-cassandra -p 9042:9042 -v /home/otaviojava/data:/var/lib/cassandra -v /home/otaviojava/config:/etc/cassandra -d cassandra
+docker run --name some-cassandra -p 9042: 9042 -v / my / own / datadir: / var / lib / cassandra -v /path/to/config/cassandra.yaml:/etc/cassandra/cassandra.yaml - d cassandra
+// sample
+docker run --name some-cassandra -p 9042: 9042 -v / home / otaviojava / data: / var / lib / cassandra -v / home / otaviojava / config: / etc / cassandra -d cassandra
 ```
 
 Once enabled, when accessing Cassandra again there will be an error message:
@@ -1177,7 +1176,7 @@ cassandra @ cqlsh>
 For Docker, access is similar, just search for the container ID and then add the user and password parameters.
 
 ```bash
- docker exec -it CONTAINER_ID cqlsh -u cassandra -p cassandra
+ docker exec -it 66e5f38a3815 cqlsh -u cassandra -p cassandra
 ```
 
 The whole creation was defined from the ROLES. For example, it is possible to create some users.
@@ -1254,10 +1253,10 @@ With the users created, it is now possible, for example, to create rules and def
 * EXECUTE
 
 ```sql
-grant_permission_statement ::= GRANT permissions ON resource TO role_name
-permissions ::= ALL [PERMISSIONS] | permission [PERMISSION]
-permission ::= CREATE | ALTER | DROP | SELECT | MODIFY | AUTHORIZE | DESCRIBE | EXECUTE
-resource ::= ALL KEYSPACES
+grant_permission_statement :: = GRANT permissions ON resource TO role_name
+permissions :: = ALL [PERMISSIONS] | permission [PERMISSION]
+permission :: = CREATE | ALTER | DROP | SELECT | MODIFY | AUTHORIZE | DESCRIBE | EXECUTE
+resource :: = ALL KEYSPACES
                                | KEYSPACE keyspace_name
                                | [TABLE] table_name
                                | ALL ROLES
@@ -1272,36 +1271,36 @@ resource ::= ALL KEYSPACES
 To clarify the security context within Cassandra, imagine the following scenario within the bookstore system:
 
 * The `user` rule can only read within the library keyspace
-* The `librarian` rule can make changes to the library keyspace
+* The librarian rule can make changes to the library keyspace
 * The `manager` rule can create tables within the library keyspace
 
 Based on these rules, the following will be created:
 
 * `ada` as a user
-* `mike` as a librarian
+* Mike as a librarian
 * `jonh` as manager
 
 
 ```sql
 CREATE KEYSPACE IF NOT EXISTS library WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
-//create the role user
+// create the role user
 CREATE ROLE IF NOT EXISTS user;
 GRANT SELECT ON KEYSPACE library TO user;
-//create user ada
+// create user ada
 CREATE ROLE ada WITH PASSWORD = 'ada' AND LOGIN = true;
 GRANT user TO ada;
-//create the role librarian
+// create the role librarian
 CREATE ROLE IF NOT EXISTS librarian;
 GRANT MODIFY ON KEYSPACE library TO librarian;
 GRANT SELECT ON KEYSPACE library TO librarian;
-//create mike
+// create mike
 CREATE ROLE mike WITH PASSWORD = 'mike' AND LOGIN = true;
 GRANT librarian TO mike;
-//create manager
+// create manager
 CREATE ROLE IF NOT EXISTS manager;
 GRANT ALTER ON KEYSPACE library TO manager;
 GRANT CREATE ON KEYSPACE library TO manager;
-//create jonh
+// create jonh
 CREATE ROLE jonh WITH PASSWORD = 'jonh' AND LOGIN = true;
 GRANT manager TO jonh;
 ```
@@ -1356,4 +1355,4 @@ With security enabled within Cassandra, users will be allowed to perform some op
 
 In this chapter, it was possible to show that Cassandra Query Language or CQL has many more similarities with SQL besides the name, so that someone who already knows relational databases well and their communication syntax would have a low learning curve when learning the Cassandra.
 
-One of the important points that this chapter explored was the use of security that exists within Cassandra. It is always important to be concerned about security whether using access through firewalls or with user and password permission for data in the database.
+One of the important points that this chapter explored was the use of security that exists within Cassandra. It is always important to be concerned about security whether with access firewalls or with user and password permission for points in the database.

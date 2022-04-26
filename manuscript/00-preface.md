@@ -24,15 +24,10 @@ To access the source code of the book: [ https://github.com/otaviojava/cassandra
 
 Java developers, enthusiastic and familiar with NoSQL technology and who want to learn or deepen their knowledge about Cassandra.
 
-
-
 ## About the author
-
  
-
 Otavio Santana is a passionate software engineer with a focus on Java technology. He has experience in multilingual persistence and high-performance applications in areas such as finance, social networks, and e-commerce. He works on several Java specifications as part of the expert group or as a specification leader and is an executive member of the Java Community Process. He works on several open-source projects from both the Apache and the Eclipse Foundation such as Apache Tamaya, Eclipse JNoSQL, Eclipse MicroProfile, and Jakarta EE in addition to being a present member of the community helping the JUG and in several conferences around the world such as JavaOne, OracleCode, Devoxx, Qcon among others. Due to his efforts for the community and open-source, he received several recognition awards such as the JCP Outstanding Award, Member of the year and innovative JSR, Duke’s Choice Award, Java Champion, Oracle Groundbreaker, among others.
 
 ### About the Reviewer
 
-
-Karina M. Varela is a Senior Technical Marketing Manager at Red Hat and an expert on the matter of Business Automation. She brings a solid background in development, architecting delivering, and troubleshooting critical software in enterprise environments of different sectors around the world. She's a coordinator of the SouJava community, and in her free time, enjoys contributing to the open-source community by writing, speaking and promoting tech events.
+Karina M. Varela is a Senior Technical Marketing Manager at Red Hat and an expert on the matter of Business Automation. She brings a solid background in development, architecting delivering, and troubleshooting critical software in enterprise environments of different 
