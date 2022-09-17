@@ -65,7 +65,7 @@ DROP KEYSPACE IF EXISTS library;
 CREATE KEYSPACE IF NOT EXISTS library WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
 ```
 
-## Speaker family
+## Column family
 
 The creation of the column family is similar to the creation of the table, that is, it is where the fields are defined, *partition key*, *clustering key*, the index, and more settings. Just use the `CREATE TABLE` template:
 
