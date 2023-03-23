@@ -104,7 +104,7 @@ Graph-type databases are a data structure that connects a set of vertices throug
 
 ## CAP theorem
 
-![CAP theorem](cap.png)
+![CAP theorem](resources/cap.png)
 
 One of the biggest challenges of NoSQL databases is that they deal with distributed persistence, that is, the information is located in more than one server. Several studies were created to help in this challenge of distributed persistence. The most famous was a theory created in 1999, the CAP Theorem.
 
