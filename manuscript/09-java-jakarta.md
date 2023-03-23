@@ -28,7 +28,7 @@ The project has two layers:
 
 2. **Mapping layer**: API that helps the developer to integrate with the non-relational database, being oriented to annotations and using technologies such as dependency injection and Bean Validation, which makes it simple for developers to use. Comparing with the classic RDBMS, this layer can be compared with JPA or other mapping frameworks like Hibernate.
 
-![Eclipse JNoSQL architecture](jnosql.png)
+![Eclipse JNoSQL architecture](resources/jnosql.png)
 
 
 As with Spring Data, Jakarta NoSQL works in conjunction with a dependency injection engine, however, the CDI specification is used in the project. Using the same principle, we will start with the codes and configuration files that are necessary to make the CDI container lift, in addition to communicating with Cassandra.
